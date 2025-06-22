@@ -1,0 +1,142 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import type { UserRole } from "@/types"
+import { useData } from "@/context/data-context"
+import { Check, X } from "lucide-react"
+import { useState } from "react"
+import { usePagination } from "@/hooks/use-pagination"
+import { PaginationControls } from "@/components/pagination-controls"
+
+interface ApprovalQueueProps {
+  managerId: string
+  userRole: UserRole
+}
+
+export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
+  const { timesheetEntries, projects, activityTypes, users, updateTimesheetEntry } = useData()
+
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+
+  const getPendingEntries = () => {
+    if (userRole === "Reporting Manager") {
+      // Show submitted entries from direct reports
+      const directReports = users.filter((user) => user.reportingManagerId === managerId)
+      return timesheetEntries.filter(
+        (entry) => entry.status === "Submitted" && directReports.some((report) => report.id === entry.employeeId),
+      )
+    } else {
+      // Admin/HR Admin can see all submitted entries
+      return timesheetEntries.filter((entry) => entry.status === "Submitted")
+    }
+  }
+
+  const pendingEntries = getPendingEntries()
+  const pagination = usePagination({
+    data: pendingEntries,
+    itemsPerPage,
+  })
+
+  const getProjectName = (projectId: string) => {
+    return projects.find((p) => p.id === projectId)?.name || "Unknown Project"
+  }
+
+  const getActivityName = (activityId: string) => {
+    return activityTypes.find((a) => a.id === activityId)?.name || "Unknown Activity"
+  }
+
+  const getEmployeeName = (employeeId: string) => {
+    return users.find((u) => u.id === employeeId)?.fullName || "Unknown Employee"
+  }
+
+  const handleApprove = (entryId: string) => {
+    updateTimesheetEntry(entryId, {
+      status: "Approved",
+      approvedAt: new Date().toISOString(),
+      approvedBy: managerId,
+    })
+    alert("Entry approved successfully!")
+  }
+
+  const handleReject = (entryId: string) => {
+    updateTimesheetEntry(entryId, {
+      status: "Rejected",
+      approvedBy: managerId,
+    })
+    alert("Entry rejected successfully!")
+  }
+
+  if (pendingEntries.length === 0) {
+    return <div className="text-center py-8 text-gray-500">No pending timesheet entries for approval.</div>
+  }
+
+  return (
+    <div className="border rounded-lg">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Employee</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Project</TableHead>
+            <TableHead>Activity</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Hours</TableHead>
+            <TableHead>Submitted</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pagination.paginatedData.map((entry) => (
+            <TableRow key={entry.id}>
+              <TableCell>{getEmployeeName(entry.employeeId)}</TableCell>
+              <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
+              <TableCell>{getProjectName(entry.projectId)}</TableCell>
+              <TableCell>{getActivityName(entry.activityTypeId)}</TableCell>
+              <TableCell className="max-w-xs truncate">{entry.description}</TableCell>
+              <TableCell>{entry.timeWorked}h</TableCell>
+              <TableCell>{entry.submittedAt && new Date(entry.submittedAt).toLocaleDateString()}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleApprove(entry.id)}
+                    className="bg-green-50 text-green-700 hover:bg-green-100"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleReject(entry.id)}
+                    className="bg-red-50 text-red-700 hover:bg-red-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.totalItems}
+        startIndex={pagination.startIndex}
+        endIndex={pagination.endIndex}
+        onPageChange={pagination.goToPage}
+        onNextPage={pagination.goToNextPage}
+        onPreviousPage={pagination.goToPreviousPage}
+        hasNextPage={pagination.hasNextPage}
+        hasPreviousPage={pagination.hasPreviousPage}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(newItemsPerPage) => {
+          setItemsPerPage(newItemsPerPage)
+          pagination.resetPagination()
+        }}
+      />
+    </div>
+  )
+}
