@@ -1,5 +1,5 @@
 // AUTH
-export const LOGIN = "/auth/signin";
+export const SIGNIN = "/auth/signin";
 export const SIGNUP = "/auth/signup";
 export const GOOGLE_AUTH = "/auth/client/google";
 export const VERIFY_USER = "/auth/client/verify";

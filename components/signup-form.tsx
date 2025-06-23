@@ -1,137 +1,143 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import type { User, UserRole } from "@/types"
-import { useData } from "@/context/data-context"
-import { ArrowLeft, UserPlus } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useData } from "@/context/data-context";
+import { User, UserRole } from "@/types";
+import { ArrowLeft, UserPlus } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
 
 interface SignupFormProps {
-  onSignup: (user: User) => void
-  onBackToLogin: () => void
+  onSignup: (user: User) => void;
+  onBackToLogin: () => void;
 }
 
 export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
-  const { users, designations, addUser } = useData()
+  const { users, designations, addUser } = useData();
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
     employeeCode: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "Employee" as UserRole,
-    designation: "",
+    role: "" as UserRole,
     joinDate: new Date().toISOString().split("T")[0],
     reportingManagerId: "none",
     department: "",
     phoneNumber: "",
     address: "",
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [acceptedTerms, setAcceptedTerms] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const managers = users.filter(
-    (user) => user.role === "Reporting Manager" || user.role === "Admin" || user.role === "HR Admin",
-  )
+  const managers = users.filter((user) => user.role === UserRole.MANAGER);
+
+  // const manager = get all managers from redux
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required"
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "Full name is required";
     }
 
     if (!formData.employeeCode.trim()) {
-      newErrors.employeeCode = "Employee code is required"
-    } else if (users.some((user) => user.employeeCode === formData.employeeCode)) {
-      newErrors.employeeCode = "Employee code already exists"
+      newErrors.employeeCode = "Employee code is required";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address"
+      newErrors.email = "Please enter a valid email address";
     } else if (users.some((user) => user.email === formData.email)) {
-      newErrors.email = "Email already registered"
+      newErrors.email = "Email already registered";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
-    }
-
-    if (!formData.designation) {
-      newErrors.designation = "Designation is required"
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     if (!acceptedTerms) {
-      newErrors.terms = "You must accept the terms and conditions"
+      newErrors.terms = "You must accept the terms and conditions";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const newUser: User = {
-        id: `user-${Date.now()}`,
-        fullName: formData.fullName,
-        employeeCode: formData.employeeCode,
+        firstName: formData.firstName,
         email: formData.email,
         role: formData.role,
-        designation: formData.designation,
-        joinDate: formData.joinDate,
-        reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
-      }
+        // reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
+      };
 
-      addUser(newUser)
-      onSignup(newUser)
+      addUser(newUser);
+      onSignup(newUser);
     } catch (error) {
-      setErrors({ submit: "Registration failed. Please try again." })
+      setErrors({ submit: "Registration failed. Please try again." });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value })
+    setFormData({ ...formData, [field]: value });
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors({ ...errors, [field]: "" })
+      setErrors({ ...errors, [field]: "" });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={onBackToLogin} className="p-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBackToLogin}
+              className="p-1"
+            >
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
@@ -147,17 +153,21 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
               <h3 className="text-lg font-medium">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">
+                  <Label htmlFor="firstName">
                     Full Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    id="fullName"
+                    id="firstName"
                     placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    className={errors.fullName ? "border-red-500" : ""}
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      handleInputChange("firstName", e.target.value)
+                    }
+                    className={errors.firstName ? "border-red-500" : ""}
                   />
-                  {errors.fullName && <p className="text-sm text-red-500">{errors.fullName}</p>}
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500">{errors.firstName}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -168,10 +178,19 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     id="employeeCode"
                     placeholder="e.g., EMP001"
                     value={formData.employeeCode}
-                    onChange={(e) => handleInputChange("employeeCode", e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "employeeCode",
+                        e.target.value.toUpperCase()
+                      )
+                    }
                     className={errors.employeeCode ? "border-red-500" : ""}
                   />
-                  {errors.employeeCode && <p className="text-sm text-red-500">{errors.employeeCode}</p>}
+                  {errors.employeeCode && (
+                    <p className="text-sm text-red-500">
+                      {errors.employeeCode}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -186,7 +205,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className={errors.email ? "border-red-500" : ""}
                   />
-                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -195,7 +216,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     id="phoneNumber"
                     placeholder="Enter your phone number"
                     value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("phoneNumber", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -225,10 +248,14 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     type="password"
                     placeholder="Enter password (min. 6 characters)"
                     value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     className={errors.password ? "border-red-500" : ""}
                   />
-                  {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -240,10 +267,16 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     type="password"
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("confirmPassword", e.target.value)
+                    }
                     className={errors.confirmPassword ? "border-red-500" : ""}
                   />
-                  {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-500">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -254,13 +287,20 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Select value={formData.role} onValueChange={(value: UserRole) => handleInputChange("role", value)}>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value: UserRole) =>
+                      handleInputChange("role", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Employee">Employee</SelectItem>
-                      <SelectItem value="Reporting Manager">Reporting Manager</SelectItem>
+                      <SelectItem value="Reporting Manager">
+                        Reporting Manager
+                      </SelectItem>
                       <SelectItem value="Admin">Admin</SelectItem>
                       <SelectItem value="HR Admin">HR Admin</SelectItem>
                     </SelectContent>
@@ -273,20 +313,29 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                   </Label>
                   <Select
                     value={formData.designation}
-                    onValueChange={(value) => handleInputChange("designation", value)}
+                    onValueChange={(value) =>
+                      handleInputChange("designation", value)
+                    }
                   >
-                    <SelectTrigger className={errors.designation ? "border-red-500" : ""}>
+                    <SelectTrigger
+                      className={errors.designation ? "border-red-500" : ""}
+                    >
                       <SelectValue placeholder="Select designation" />
                     </SelectTrigger>
                     <SelectContent>
                       {designations.map((designation) => (
-                        <SelectItem key={designation.id} value={designation.title}>
+                        <SelectItem
+                          key={designation.id}
+                          value={designation.title}
+                        >
                           {designation.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.designation && <p className="text-sm text-red-500">{errors.designation}</p>}
+                  {errors.designation && (
+                    <p className="text-sm text-red-500">{errors.designation}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -295,7 +344,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     id="joinDate"
                     type="date"
                     value={formData.joinDate}
-                    onChange={(e) => handleInputChange("joinDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("joinDate", e.target.value)
+                    }
                   />
                 </div>
 
@@ -303,7 +354,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                   <Label htmlFor="reportingManager">Reporting Manager</Label>
                   <Select
                     value={formData.reportingManagerId}
-                    onValueChange={(value) => handleInputChange("reportingManagerId", value)}
+                    onValueChange={(value) =>
+                      handleInputChange("reportingManagerId", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select reporting manager" />
@@ -312,7 +365,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                       <SelectItem value="none">None</SelectItem>
                       {managers.map((manager) => (
                         <SelectItem key={manager.id} value={manager.id}>
-                          {manager.fullName} ({manager.role})
+                          {manager.firstName} ({manager.role})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -328,9 +381,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                   id="terms"
                   checked={acceptedTerms}
                   onCheckedChange={(checked) => {
-                    setAcceptedTerms(checked as boolean)
+                    setAcceptedTerms(checked as boolean);
                     if (errors.terms) {
-                      setErrors({ ...errors, terms: "" })
+                      setErrors({ ...errors, terms: "" });
                     }
                   }}
                   className={errors.terms ? "border-red-500" : ""}
@@ -340,17 +393,25 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     htmlFor="terms"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I accept the terms and conditions <span className="text-red-500">*</span>
+                    I accept the terms and conditions{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    By creating an account, you agree to our terms of service and privacy policy.
+                    By creating an account, you agree to our terms of service
+                    and privacy policy.
                   </p>
                 </div>
               </div>
-              {errors.terms && <p className="text-sm text-red-500">{errors.terms}</p>}
+              {errors.terms && (
+                <p className="text-sm text-red-500">{errors.terms}</p>
+              )}
             </div>
 
-            {errors.submit && <p className="text-sm text-red-500 text-center">{errors.submit}</p>}
+            {errors.submit && (
+              <p className="text-sm text-red-500 text-center">
+                {errors.submit}
+              </p>
+            )}
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
@@ -370,7 +431,10 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
-              <button onClick={onBackToLogin} className="font-medium text-blue-600 hover:text-blue-500">
+              <button
+                onClick={onBackToLogin}
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Sign in here
               </button>
             </p>
@@ -378,5 +442,5 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

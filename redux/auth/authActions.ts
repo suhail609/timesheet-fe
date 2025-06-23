@@ -1,5 +1,8 @@
 import { useDispatch } from "react-redux";
 import { setAuthState } from "./authSlice";
+import { ApiRequest } from "@/network/ApiRequest";
+import { SIGNUP } from "@/network/ApiEndpoints";
+import { UserRole } from "@/types";
 // import { trpc } from "../../lib/trpc";
 
 export const useAuthActions = () => {
@@ -30,19 +33,33 @@ export const useAuthActions = () => {
   const signup = async ({
     email,
     password,
+    role,
   }: {
     email: string;
     password: string;
+    role: UserRole;
   }) => {
     try {
-      // const mutation = trpc.auth.signup;
-      // const token = await mutation.mutate({ email, password });
+
+      const response = (await ApiRequest().request({
+        method: "POST",
+        url: SIGNUP,
+        data: { email: email, password: password, role: role },
+      })) as {
+        accessToken: string;
+        user: {
+          firstName: string;
+          lastName: string;
+          email: string;
+          role: UserRole;
+        };
+      };
 
       dispatch(
         setAuthState({
           isAuthenticated: true,
-          user: { email: email },
-          token: "token",
+          user: { email: email, role: response.user.role },
+          token: response.accessToken,
         })
       );
     } catch (error) {
