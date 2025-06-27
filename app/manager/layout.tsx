@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { selectAuthSlice } from "@/redux/auth/authSlice";
 import { UserRole } from "@/types";
 
-export default function EmployeeLayout({
+export default function ManagerLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -16,23 +16,34 @@ export default function EmployeeLayout({
   const router = useRouter();
   const { getAccessToken } = useAccessToken();
   const accessToken = getAccessToken();
-  const { user } = useSelector(selectAuthSlice);
+  const { user, isLoading } = useSelector(selectAuthSlice);
   const { getProfile } = useAuthActions();
 
   useEffect(() => {
-    if (!accessToken) {
+    (async () => {
+      if (!accessToken) {
+        router.push("/signin");
+        return;
+      }
+
+      if (!user) {
+        try {
+          await getProfile();
+        } catch (error) {
+          router.push("/signin");
+          return;
+        }
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (user && user.role !== UserRole.MANAGER) {
       router.push("/signin");
       return;
     }
+  }, [user]);
 
-    if (!user || user.role !== UserRole.EMPLOYEE) {
-      try {
-        getProfile();
-      } catch (error) {
-        router.push("/signin");
-      }
-    }
-  }, []);
-
+  if (isLoading) return <>hello</>;
   return <>{children}</>;
 }

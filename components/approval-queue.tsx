@@ -1,74 +1,109 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import type { UserRole } from "@/types"
-import { useData } from "@/context/data-context"
-import { Check, X } from "lucide-react"
-import { useState } from "react"
-import { usePagination } from "@/hooks/use-pagination"
-import { PaginationControls } from "@/components/pagination-controls"
+import { PaginationControls } from "@/components/pagination-controls";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useData } from "@/context/data-context";
+import { usePagination } from "@/hooks/use-pagination";
+import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
+import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
+import type { UserRole } from "@/types";
+import { Check, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface ApprovalQueueProps {
-  managerId: string
-  userRole: UserRole
+  managerId: string;
+  userRole: UserRole;
 }
 
 export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
-  const { timesheetEntries, projects, activityTypes, users, updateTimesheetEntry } = useData()
+  const {
+    timesheetEntries,
+    projects,
+    activityTypes,
+    users,
+    updateTimesheetEntry,
+  } = useData();
 
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const { getSubordinatesTimesheets } = useTimesheetActions();
+  const { timesheets } = useSelector(selectTimesheet);
+
+  useEffect(() => {
+    getSubordinatesTimesheets({});
+  }, []);
 
   const getPendingEntries = () => {
     if (userRole === "Reporting Manager") {
       // Show submitted entries from direct reports
-      const directReports = users.filter((user) => user.reportingManagerId === managerId)
+      const directReports = users.filter(
+        (user) => user.reportingManagerId === managerId
+      );
       return timesheetEntries.filter(
-        (entry) => entry.status === "Submitted" && directReports.some((report) => report.id === entry.employeeId),
-      )
+        (entry) =>
+          entry.status === "Submitted" &&
+          directReports.some((report) => report.id === entry.employeeId)
+      );
     } else {
       // Admin/HR Admin can see all submitted entries
-      return timesheetEntries.filter((entry) => entry.status === "Submitted")
+      return timesheetEntries.filter((entry) => entry.status === "Submitted");
     }
-  }
+  };
 
-  const pendingEntries = getPendingEntries()
+  const pendingEntries = getPendingEntries();
   const pagination = usePagination({
     data: pendingEntries,
     itemsPerPage,
-  })
+  });
+  pagination.paginatedData = timesheets;
 
   const getProjectName = (projectId: string) => {
-    return projects.find((p) => p.id === projectId)?.name || "Unknown Project"
-  }
+    return projects.find((p) => p.id === projectId)?.name || "Unknown Project";
+  };
 
   const getActivityName = (activityId: string) => {
-    return activityTypes.find((a) => a.id === activityId)?.name || "Unknown Activity"
-  }
+    return (
+      activityTypes.find((a) => a.id === activityId)?.name || "Unknown Activity"
+    );
+  };
 
   const getEmployeeName = (employeeId: string) => {
-    return users.find((u) => u.id === employeeId)?.fullName || "Unknown Employee"
-  }
+    return (
+      users.find((u) => u.id === employeeId)?.fullName || "Unknown Employee"
+    );
+  };
 
   const handleApprove = (entryId: string) => {
     updateTimesheetEntry(entryId, {
       status: "Approved",
       approvedAt: new Date().toISOString(),
       approvedBy: managerId,
-    })
-    alert("Entry approved successfully!")
-  }
+    });
+    alert("Entry approved successfully!");
+  };
 
   const handleReject = (entryId: string) => {
     updateTimesheetEntry(entryId, {
       status: "Rejected",
       approvedBy: managerId,
-    })
-    alert("Entry rejected successfully!")
-  }
+    });
+    alert("Entry rejected successfully!");
+  };
 
   if (pendingEntries.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No pending timesheet entries for approval.</div>
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No pending timesheet entries for approval.
+      </div>
+    );
   }
 
   return (
@@ -93,9 +128,14 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
               <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
               <TableCell>{getProjectName(entry.projectId)}</TableCell>
               <TableCell>{getActivityName(entry.activityTypeId)}</TableCell>
-              <TableCell className="max-w-xs truncate">{entry.description}</TableCell>
+              <TableCell className="max-w-xs truncate">
+                {entry.description}
+              </TableCell>
               <TableCell>{entry.timeWorked}h</TableCell>
-              <TableCell>{entry.submittedAt && new Date(entry.submittedAt).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {entry.submittedAt &&
+                  new Date(entry.submittedAt).toLocaleDateString()}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Button
@@ -133,10 +173,10 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
         hasPreviousPage={pagination.hasPreviousPage}
         itemsPerPage={itemsPerPage}
         onItemsPerPageChange={(newItemsPerPage) => {
-          setItemsPerPage(newItemsPerPage)
-          pagination.resetPagination()
+          setItemsPerPage(newItemsPerPage);
+          pagination.resetPagination();
         }}
       />
     </div>
-  )
+  );
 }

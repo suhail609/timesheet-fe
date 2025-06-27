@@ -1,5 +1,6 @@
 "use client";
 
+import { EmployeeManagement } from "@/components/employee-management";
 import { MasterData } from "@/components/master-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,7 +62,16 @@ const Admin = () => {
               Masters
             </TabsTrigger>
           </TabsList>
-
+          <TabsContent value="employees">
+            <Card>
+              <CardHeader>
+                <CardTitle>Employee Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmployeeManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="masters">
             <Card>
               <CardHeader>

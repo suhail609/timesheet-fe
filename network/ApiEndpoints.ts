@@ -11,3 +11,7 @@ export const FORGOT_PASSWORD_REQUEST = "/auth/client/forgot-password";
 export const GET_ALL_TIMESHEETS = "/timesheet/all";
 export const CREATE_TIMESHEET = "/timesheet/create";
 export const UPDATE_TIMESHEET = "/timesheet/update";
+export const GET_APP_DATA = "/app-data";
+
+//MANAGER
+export const GET_SUBORDINATES_TIMESHEET = "/timesheet/subordinate/all";

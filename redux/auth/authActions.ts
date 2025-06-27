@@ -42,8 +42,9 @@ export const useAuthActions = () => {
 
   const getProfile = async () => {
     try {
-      // dispatch(authStart());
-      console.log('getting profile')
+      dispatch(authStart());
+      console.log("getting profile");
+
       const { status, data }: AxiosResponse<UserProfile> =
         await ApiRequest().request({
           method: "GET",

@@ -17,6 +17,7 @@ import { ApiRequest } from "@/network/ApiRequest";
 import {
   CREATE_TIMESHEET,
   GET_ALL_TIMESHEETS,
+  GET_SUBORDINATES_TIMESHEET,
   UPDATE_TIMESHEET,
 } from "@/network/ApiEndpoints";
 import { AxiosResponse } from "axios";
@@ -124,6 +125,38 @@ export const useTimesheetActions = () => {
     }
   };
 
+  const getSubordinatesTimesheets = async ({
+    page,
+    limit,
+  }: {
+    page?: number;
+    limit?: number;
+  }) => {
+    try {
+      const response = await ApiRequest()
+        .request({
+          method: "GET",
+          url: GET_SUBORDINATES_TIMESHEET,
+          params: { page, limit },
+        })
+        .then((response: AxiosResponse) => {
+          const { data } = response;
+
+          dispatch(setTimesheets(data));
+
+          return data;
+        })
+        .catch((error) => {
+          // errorToastify(error);
+          return error;
+        });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    }
+  };
+
   // const selectChat = ({ selectedChatId }: { selectedChatId: string }) => {
   //   dispatch(setSelectedChat(selectedChatId));
   // };
@@ -137,5 +170,6 @@ export const useTimesheetActions = () => {
     getAllTimesheets,
     createNewTimesheetEntry,
     updateTimesheet,
+    getSubordinatesTimesheets,
   };
 };

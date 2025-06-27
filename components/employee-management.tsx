@@ -1,79 +1,100 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { User } from "@/types"
-import { Plus, Edit, Trash2 } from "lucide-react"
-import { useData } from "@/context/data-context"
-import { usePagination } from "@/hooks/use-pagination"
-import { PaginationControls } from "@/components/pagination-controls"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserRole, type User } from "@/types";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import { useData } from "@/context/data-context";
+import { usePagination } from "@/hooks/use-pagination";
+import { PaginationControls } from "@/components/pagination-controls";
+import { useSelector } from "react-redux";
+import { selectAppData } from "@/redux/app-data/appDataSlice";
+import { appDataActions } from "@/redux/app-data/appDataAction";
 
 export function EmployeeManagement() {
-  const { users, designations, addUser } = useData()
-  const [showAddForm, setShowAddForm] = useState(false)
+  const { users, designations, addUser } = useData();
+  const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
     employeeCode: "",
     email: "",
     designation: "",
     joinDate: "",
     reportingManagerId: "none",
-    role: "Employee" as const,
-  })
+    role: UserRole.EMPLOYEE,
+  });
 
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const { appData } = useSelector(selectAppData);
+  const { getAppData } = appDataActions();
 
-  const managers = users.filter(
-    (user) => user.role === "Reporting Manager" || user.role === "Admin" || user.role === "HR Admin",
-  )
+  useEffect(() => {
+    getAppData();
+  }, []);
+
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const pagination = usePagination({
     data: users,
     itemsPerPage,
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const newEmployee: User = {
       id: `emp-${Date.now()}`,
-      fullName: formData.fullName,
-      employeeCode: formData.employeeCode,
+      firstName: formData.firstName,
       email: formData.email,
       role: formData.role,
       designation: formData.designation,
       joinDate: formData.joinDate,
-      reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
-    }
+      reportingManagerId:
+        formData.reportingManagerId === "none"
+          ? undefined
+          : formData.reportingManagerId,
+    };
 
-    addUser(newEmployee)
+    addUser(newEmployee);
 
     // Reset form
     setFormData({
-      fullName: "",
+      firstName: "",
       employeeCode: "",
       email: "",
       designation: "",
       joinDate: "",
       reportingManagerId: "none",
-      role: "Employee",
-    })
+      role: UserRole.EMPLOYEE,
+    });
 
-    setShowAddForm(false)
-    alert("Employee added successfully!")
-  }
+    setShowAddForm(false);
+    alert("Employee added successfully!");
+  };
 
   const getManagerName = (managerId?: string) => {
-    if (!managerId) return "None"
-    return users.find((u) => u.id === managerId)?.fullName || "Unknown"
-  }
+    if (!managerId) return "None";
+    return users.find((u) => u.id === managerId)?.firstName || "Unknown";
+  };
 
   return (
     <div className="space-y-6">
@@ -91,13 +112,18 @@ export function EmployeeManagement() {
             <CardTitle>Add New Employee</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="firstName">Full Name</Label>
                 <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -107,7 +133,9 @@ export function EmployeeManagement() {
                 <Input
                   id="employeeCode"
                   value={formData.employeeCode}
-                  onChange={(e) => setFormData({ ...formData, employeeCode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, employeeCode: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -118,7 +146,9 @@ export function EmployeeManagement() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -127,14 +157,19 @@ export function EmployeeManagement() {
                 <Label htmlFor="designation">Designation</Label>
                 <Select
                   value={formData.designation}
-                  onValueChange={(value) => setFormData({ ...formData, designation: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, designation: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select designation" />
                   </SelectTrigger>
                   <SelectContent>
                     {designations.map((designation) => (
-                      <SelectItem key={designation.id} value={designation.title}>
+                      <SelectItem
+                        key={designation.id}
+                        value={designation.title}
+                      >
                         {designation.title}
                       </SelectItem>
                     ))}
@@ -148,7 +183,9 @@ export function EmployeeManagement() {
                   id="joinDate"
                   type="date"
                   value={formData.joinDate}
-                  onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, joinDate: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -157,16 +194,18 @@ export function EmployeeManagement() {
                 <Label htmlFor="reportingManager">Reporting Manager</Label>
                 <Select
                   value={formData.reportingManagerId}
-                  onValueChange={(value) => setFormData({ ...formData, reportingManagerId: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, reportingManagerId: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select reporting manager" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {managers.map((manager) => (
+                    {appData.managers.map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
-                        {manager.fullName} ({manager.role})
+                        {manager.firstName} ({manager.email})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -175,7 +214,11 @@ export function EmployeeManagement() {
 
               <div className="md:col-span-2 flex gap-2">
                 <Button type="submit">Add Employee</Button>
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAddForm(false)}
+                >
                   Cancel
                 </Button>
               </div>
@@ -191,7 +234,6 @@ export function EmployeeManagement() {
               <TableHead>Employee Code</TableHead>
               <TableHead>Full Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Designation</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Join Date</TableHead>
               <TableHead>Reporting Manager</TableHead>
@@ -201,13 +243,16 @@ export function EmployeeManagement() {
           <TableBody>
             {pagination.paginatedData.map((employee) => (
               <TableRow key={employee.id}>
-                <TableCell>{employee.employeeCode}</TableCell>
-                <TableCell>{employee.fullName}</TableCell>
+                <TableCell>{employee.id}</TableCell>
+                <TableCell>{employee.firstName}</TableCell>
                 <TableCell>{employee.email}</TableCell>
-                <TableCell>{employee.designation}</TableCell>
                 <TableCell>{employee.role}</TableCell>
-                <TableCell>{new Date(employee.joinDate).toLocaleDateString()}</TableCell>
-                <TableCell>{getManagerName(employee.reportingManagerId)}</TableCell>
+                <TableCell>
+                  {new Date().toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {getManagerName(employee.reportingManagerId)}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm">
@@ -236,10 +281,10 @@ export function EmployeeManagement() {
         hasPreviousPage={pagination.hasPreviousPage}
         itemsPerPage={itemsPerPage}
         onItemsPerPageChange={(newItemsPerPage) => {
-          setItemsPerPage(newItemsPerPage)
-          pagination.resetPagination()
+          setItemsPerPage(newItemsPerPage);
+          pagination.resetPagination();
         }}
       />
     </div>
-  )
+  );
 }

@@ -41,6 +41,15 @@ export type SigninResponse = {
   accessToken: string;
 };
 
+export type AppDataResponse = {
+  managers: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+  }[];
+};
+
 export type UserProfile = {
   firstName: string;
   lastName: string;
