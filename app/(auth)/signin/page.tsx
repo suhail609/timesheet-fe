@@ -1,21 +1,25 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAuthActions } from "../../../redux/auth/authActions";
 import { LoginForm } from "@/components/login-form";
-import { User } from "@/types";
+import { UserRole, UserSignin } from "@/types";
+import { useRouter } from "next/navigation";
+import { useAuthActions } from "../../../redux/auth/authActions";
 
 const SignIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
   const { signin } = useAuthActions();
-  const router = useRouter();"/timesheet/all"
 
-  const onLogin = async (user: User) => {
+  const onLogin = async (user: UserSignin) => {
     try {
-      await signin({ email: user.email, password: user.role });
-      router.push("/employee/timesheet");
+      await signin({
+        email: user.email,
+        password: user.password,
+        role: user.role,
+      });
+      if (user.role === UserRole.EMPLOYEE) {
+        router.push("/employee/timesheet");
+        return;
+      }
     } catch (error) {
       console.error(error);
     }

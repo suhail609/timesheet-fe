@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthActions } from "../../../redux/auth/authActions";
 import { SignupForm } from "@/components/signup-form";
-import { User } from "@/types";
+import { User, UserSignup } from "@/types";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -13,10 +13,14 @@ const SignUp = () => {
 
   const { signup } = useAuthActions();
 
-  const handleSubmit = async (user: User) => {
+  const handleSubmit = async (user: UserSignup) => {
     try {
-      signup({ email: user.email, password: user.role });
-      router.push("/chat");
+      signup({
+        email: user.email,
+        password: user.password,
+        role: user.role,
+      });
+      router.push("/");
     } catch (error) {
       console.error(error);
     }

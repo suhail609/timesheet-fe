@@ -1,4 +1,5 @@
 //ENVIRONMENTS
+import { useAccessToken } from "@/hooks/useAccessToken";
 import {
   getAccessTokenFromCookie,
   getRefreshTokenFromCookie,
@@ -54,14 +55,15 @@ import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 // };
 
 export const ApiRequest = (): AxiosInstance => {
-  let token = getAccessTokenFromCookie();
+  // const accessToken = getAccessTokenFromCookie();
+  const { getAccessToken } = useAccessToken();
   // let refreshToken = getRefreshTokenFromCookie();
   // const rememberMe = getRememberMe();
 
   const request = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     headers: {
-      Authorization: `Bearer ${token || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YWY5YzcwYS1iMzFhLTRiNTEtYWM3Mi1mODlmOGE5ZTliY2EiLCJlbWFpbCI6ImVtcGxveWVlQHN1aGFpbC5jb20iLCJyb2xlIjoiRU1QTE9ZRUUiLCJpYXQiOjE3NTA1MDE5NzEsImV4cCI6MTc1MTEwNjc3MX0.QWlS0Q4mSjvtkxrmCpa4ElSGQCfhSv-tom5AH4gkP20"}`,
+      Authorization: `Bearer ${getAccessToken()}`,
     },
     responseType: "json",
     socketPath: null,

@@ -5,6 +5,7 @@ import {
   // clearChatSelection,
   setTimesheets,
   addTimesheet,
+  updateTimesheet as updateTimesheetSlice,
 } from "./timesheetSlice";
 import {
   addMessage,
@@ -13,8 +14,13 @@ import {
   setMessagesLoading,
 } from "./chatMessageSlice";
 import { ApiRequest } from "@/network/ApiRequest";
-import { GET_ALL_TIMESHEETS } from "@/network/ApiEndpoints";
+import {
+  CREATE_TIMESHEET,
+  GET_ALL_TIMESHEETS,
+  UPDATE_TIMESHEET,
+} from "@/network/ApiEndpoints";
 import { AxiosResponse } from "axios";
+import { TimesheetEntry } from "@/types";
 
 export const useTimesheetActions = () => {
   const dispatch = useDispatch();
@@ -27,7 +33,6 @@ export const useTimesheetActions = () => {
     limit?: number;
   }) => {
     try {
-
       const response = await ApiRequest()
         .request({
           method: "GET",
@@ -70,25 +75,50 @@ export const useTimesheetActions = () => {
   //   }
   // };
 
-  const createNewTimesheetEntry = async ({
-    chatId,
-    content,
-  }: {
-    chatId?: string;
-    content: string;
-  }) => {
+  const createNewTimesheetEntry = async (newTimesheet: TimesheetEntry) => {
     try {
-      dispatch(setMessagesLoading(true));
-      dispatch(addMessage({ content: content, isAI: false }));
+      const response = await ApiRequest().request({
+        method: "POST",
+        url: CREATE_TIMESHEET,
+        data: newTimesheet,
+      });
 
+      dispatch(addTimesheet(newTimesheet));
+      // dispatch(setMessagesLoading(true));
+      // dispatch(addMessage({ content: content, isAI: false }));
       // const response = await trpc.chat.sendMessage.mutate({
       //   chatId: chatId,
       //   content: content,
       // });
-
       // dispatch(addTimesheet({}));
     } catch (error) {
       console.error("Error adding new timesheet entry:", error);
+    } finally {
+      dispatch(setMessagesLoading(false));
+    }
+  };
+
+  const updateTimesheet = async (updatedTimesheet: TimesheetEntry) => {
+    try {
+      console.log({ updatedTimesheet });
+      const response = await ApiRequest().request({
+        method: "PATCH",
+        url: UPDATE_TIMESHEET + "/" + updatedTimesheet.id,
+        data: updatedTimesheet,
+        // params: updatedTimesheet.id,
+      });
+
+      dispatch(updateTimesheetSlice(updatedTimesheet));
+
+      // dispatch(setMessagesLoading(true));
+      // dispatch(addMessage({ content: content, isAI: false }));
+      // const response = await trpc.chat.sendMessage.mutate({
+      //   chatId: chatId,
+      //   content: content,
+      // });
+      // dispatch(addTimesheet({}));
+    } catch (error) {
+      console.error("Error updating timesheet: ", error);
     } finally {
       dispatch(setMessagesLoading(false));
     }
@@ -106,5 +136,6 @@ export const useTimesheetActions = () => {
   return {
     getAllTimesheets,
     createNewTimesheetEntry,
+    updateTimesheet,
   };
 };

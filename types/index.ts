@@ -11,6 +11,42 @@ export interface User {
   firstName: string;
   role: UserRole;
 }
+export interface UserSignup {
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
+export interface UserSignin {
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
+export type SignupResponse = {
+  user: {
+    id: string;
+    email: string;
+    role: UserRole;
+  };
+  accessToken: string;
+};
+
+export type SigninResponse = {
+  user: {
+    id: string;
+    email: string;
+    role: UserRole;
+  };
+  accessToken: string;
+};
+
+export type UserProfile = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+};
 
 export interface Role {
   id: string;
@@ -66,7 +102,7 @@ export interface TimesheetEntry {
   userId: string;
   date: string;
   project: ProjectE;
-  activity: Activity;
+  activityType: Activity;
   description: string;
   timeSpentMinutes: number;
   status: TimesheetStatus;

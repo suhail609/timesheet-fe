@@ -1,6 +1,7 @@
 // AUTH
 export const SIGNIN = "/auth/signin";
 export const SIGNUP = "/auth/signup";
+export const GET_PROFILE = "/auth/profile";
 export const GOOGLE_AUTH = "/auth/client/google";
 export const VERIFY_USER = "/auth/client/verify";
 export const RESEND_VERIFICATION_CODE = "/auth/client/resend-verification-code";

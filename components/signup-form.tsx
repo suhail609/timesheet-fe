@@ -20,13 +20,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useData } from "@/context/data-context";
-import { User, UserRole } from "@/types";
+import { User, UserRole, UserSignup } from "@/types";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 
 interface SignupFormProps {
-  onSignup: (user: User) => void;
+  onSignup: (user: UserSignup) => void;
   onBackToLogin: () => void;
 }
 
@@ -55,14 +55,6 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "Full name is required";
-    }
-
-    if (!formData.employeeCode.trim()) {
-      newErrors.employeeCode = "Employee code is required";
-    }
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
@@ -100,17 +92,13 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newUser: User = {
-        firstName: formData.firstName,
+      const newUser: UserSignup = {
         email: formData.email,
         role: formData.role,
+        password: formData.password,
         // reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
       };
 
-      addUser(newUser);
       onSignup(newUser);
     } catch (error) {
       setErrors({ submit: "Registration failed. Please try again." });
@@ -294,48 +282,14 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Employee">Employee</SelectItem>
-                      <SelectItem value="Reporting Manager">
-                        Reporting Manager
-                      </SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="HR Admin">HR Admin</SelectItem>
+                      {
+                        Object.keys(UserRole).map((role)=>(<SelectItem value={role}>{role}</SelectItem>))
+                      }
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="designation">
-                    Designation <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={formData.designation}
-                    onValueChange={(value) =>
-                      handleInputChange("designation", value)
-                    }
-                  >
-                    <SelectTrigger
-                      className={errors.designation ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Select designation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {designations.map((designation) => (
-                        <SelectItem
-                          key={designation.id}
-                          value={designation.title}
-                        >
-                          {designation.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.designation && (
-                    <p className="text-sm text-red-500">{errors.designation}</p>
-                  )}
                 </div>
 
                 <div className="space-y-2">

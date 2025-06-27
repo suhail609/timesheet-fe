@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { InlineEditCell } from "@/components/inline-edit-cell";
+import { PaginationControls } from "@/components/pagination-controls";
+import { TimesheetEntryModal } from "@/components/timesheet-entry-modal";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -11,19 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { UserRole, TimesheetEntry, TimesheetStatus } from "@/types";
 import { useData } from "@/context/data-context";
-import { Edit, Trash2, Send, Plus } from "lucide-react";
 import { usePagination } from "@/hooks/use-pagination";
-import { PaginationControls } from "@/components/pagination-controls";
-import { TimesheetEntryModal } from "@/components/timesheet-entry-modal";
-import { InlineEditCell } from "@/components/inline-edit-cell";
-import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
-import { useSelector } from "react-redux";
-import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
 import { ApiRequest } from "@/network/ApiRequest";
-import { CREATE_TIMESHEET, UPDATE_TIMESHEET } from "@/network/ApiEndpoints";
+import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
+import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
+import { TimesheetEntry, TimesheetStatus, UserRole } from "@/types";
+import { Edit, Plus, Send, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface TimesheetGridProps {
   userId: string;
@@ -53,6 +52,8 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
       limit: 5,
     });
   }, []);
+
+  useEffect(() => {}, [timesheets]);
 
   const pagination = usePagination({
     data: timesheets,
@@ -234,11 +235,11 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                     />
                   </TableCell>
                   {userRole !== UserRole.EMPLOYEE && (
-                    <TableCell>{getEmployeeName(entry.userId)}</TableCell>
+                    <TableCell>{entry.userId}</TableCell>
                   )}
                   <TableCell>
                     <InlineEditCell
-                      value={getProjectName(entry.project)}
+                      value={entry.project}
                       onSave={(value) =>
                         handleInlineEdit(entry.id, "projectId", value)
                       }
@@ -249,7 +250,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={getActivityName(entry.activity)}
+                      value={entry.activityType}
                       onSave={(value) =>
                         handleInlineEdit(entry.id, "activityTypeId", value)
                       }

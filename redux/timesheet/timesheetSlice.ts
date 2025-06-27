@@ -63,12 +63,19 @@ const timesheetSlice = createSlice({
       state.timesheets = action.payload;
     },
     addTimesheet: (state, action: PayloadAction<TimesheetEntry>) => {
-      state.timesheets.unshift(action.payload);
+      state.timesheets.push(action.payload);
+    },
+    updateTimesheet: (state, action: PayloadAction<TimesheetEntry>) => {
+      state.timesheets = state.timesheets.map((timesheet) => {
+        if (timesheet.id === action.payload.id) return action.payload;
+        return timesheet;
+      });
     },
   },
 });
 
-export const { setTimesheets, addTimesheet } = timesheetSlice.actions;
+export const { setTimesheets, addTimesheet, updateTimesheet } =
+  timesheetSlice.actions;
 export const selectTimesheet = (state: { timesheet: TimesheetState }) =>
   state.timesheet;
 export default timesheetSlice.reducer;

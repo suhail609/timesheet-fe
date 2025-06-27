@@ -1,8 +1,13 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,13 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
 import {
   Activity,
   ProjectE,
@@ -27,9 +26,8 @@ import {
   type TimesheetEntry as TimesheetEntryType,
 } from "@/types";
 import { Plus, Save } from "lucide-react";
-import { useData } from "@/context/data-context";
-import { ApiRequest } from "@/network/ApiRequest";
-import { CREATE_TIMESHEET } from "@/network/ApiEndpoints";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface TimesheetEntryModalProps {
   userId: string;
@@ -44,14 +42,14 @@ export function TimesheetEntryModal({
   onClose,
   editingEntry,
 }: TimesheetEntryModalProps) {
-  const { projects, activityTypes, addTimesheetEntry, updateTimesheetEntry } =
-    useData();
+  const { createNewTimesheetEntry, updateTimesheet } = useTimesheetActions();
+
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
     project: ProjectE.PROJECT_A,
-    activity: Activity.DEVELOPMENT,
+    activityType: Activity.DEVELOPMENT,
     description: "",
-    timeSpentMinutes: "",
+    timeSpentMinutes: 0,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,17 +61,17 @@ export function TimesheetEntryModal({
       setFormData({
         date: editingEntry.date,
         project: editingEntry.project,
-        activity: editingEntry.activity,
+        activityType: editingEntry.activityType,
         description: editingEntry.description,
-        timeSpentMinutes: editingEntry.timeSpentMinutes.toString(),
+        timeSpentMinutes: editingEntry.timeSpentMinutes,
       });
     } else {
       setFormData({
         date: new Date().toISOString().split("T")[0],
         project: ProjectE.PROJECT_A,
-        activity: Activity.DEVELOPMENT,
+        activityType: Activity.DEVELOPMENT,
         description: "",
-        timeSpentMinutes: "",
+        timeSpentMinutes: 0,
       });
     }
     setErrors({});
@@ -90,7 +88,7 @@ export function TimesheetEntryModal({
       newErrors.project = "Project is required";
     }
 
-    if (!formData.activity) {
+    if (!formData.activityType) {
       newErrors.activity = "Activity type is required";
     }
 
@@ -101,7 +99,7 @@ export function TimesheetEntryModal({
     if (!formData.timeSpentMinutes) {
       newErrors.timeSpentMinutes = "Time worked is required";
     } else {
-      const timeValue = Number.parseFloat(formData.timeSpentMinutes);
+      const timeValue = formData.timeSpentMinutes;
       if (isNaN(timeValue) || timeValue <= 0) {
         newErrors.timeSpentMinutes = "Please enter a valid time value";
       } else if (timeValue > 24) {
@@ -124,16 +122,13 @@ export function TimesheetEntryModal({
 
     try {
       if (isEditing && editingEntry) {
-        // Update existing entry
-        updateTimesheetEntry(editingEntry.id, {
-          date: formData.date,
-          project: formData.project,
-          activity: formData.activity,
-          description: formData.description,
-          timeSpentMinutes: Number.parseFloat(formData.timeSpentMinutes),
+        updateTimesheet({
+          ...formData,
+          id: editingEntry.id,
+          status: editingEntry.status,
+          userId: editingEntry.userId,
         });
       } else {
-        // Add new entry
         const newEntry: TimesheetEntryType = {
           id: `entry-${Date.now()}`,
           userId: userId,
@@ -142,16 +137,11 @@ export function TimesheetEntryModal({
           //@ts-ignore
           activityType: formData.activity,
           description: formData.description,
-          timeSpentMinutes: Number.parseFloat(formData.timeSpentMinutes),
+          timeSpentMinutes: formData.timeSpentMinutes,
           status: TimesheetStatus.APPROVED,
         };
 
-        await ApiRequest().request({
-          method: "POST",
-          url: CREATE_TIMESHEET,
-          data: newEntry,
-        });
-        addTimesheetEntry(newEntry);
+        await createNewTimesheetEntry(newEntry);
       }
 
       onClose();
@@ -225,7 +215,7 @@ export function TimesheetEntryModal({
               Activity Type <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={formData.activity}
+              value={formData.activityType}
               onValueChange={(value) => handleInputChange("activity", value)}
             >
               <SelectTrigger

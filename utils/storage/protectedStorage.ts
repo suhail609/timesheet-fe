@@ -10,6 +10,7 @@ export const setAccessTokenCookie = (accessToken: string) => {
     ),
     secure: process.env.NODE_ENV === 'production', // Enable secure flag in production
     httpOnly: false,
+    sameSite: true,
   });
 };
 
