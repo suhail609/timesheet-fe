@@ -1,14 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
 import timesheetReducer from "./timesheet/timesheetSlice";
+import appDataReducer from "./app-data/appDataSlice";
 import chatMessageReducer from "./timesheet/chatMessageSlice";
-import appDataSlice from "./app-data/appDataSlice";
+import userReducer from "./users/userSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     timesheet: timesheetReducer,
-    appData: appDataSlice,
+    appData: appDataReducer,
+    users: userReducer,
   },
 });
 

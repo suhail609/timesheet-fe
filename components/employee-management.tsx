@@ -30,6 +30,8 @@ import { PaginationControls } from "@/components/pagination-controls";
 import { useSelector } from "react-redux";
 import { selectAppData } from "@/redux/app-data/appDataSlice";
 import { appDataActions } from "@/redux/app-data/appDataAction";
+import { usersActions } from "@/redux/users/userAction";
+import { selectUsers } from "@/redux/users/userSlice";
 
 export function EmployeeManagement() {
   const { users, designations, addUser } = useData();
@@ -38,25 +40,43 @@ export function EmployeeManagement() {
     firstName: "",
     employeeCode: "",
     email: "",
-    designation: "",
     joinDate: "",
     reportingManagerId: "none",
     role: UserRole.EMPLOYEE,
   });
 
-  const { appData } = useSelector(selectAppData);
   const { getAppData } = appDataActions();
+  const { getUserDataForManager } = usersActions();
+  const { appData } = useSelector(selectAppData);
+  const { employees } = useSelector(selectUsers);
 
   useEffect(() => {
     getAppData();
+    getUserDataForManager();
   }, []);
 
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const pagination = usePagination({
+  const pagination1 = usePagination({
     data: users,
+    // data: employees,
     itemsPerPage,
   });
+
+  const pagination = {
+    currentPage: 0,
+    totalPages: 10,
+    paginatedData: employees,
+    goToPage: () => {},
+    goToNextPage: () => {},
+    goToPreviousPage: () => {},
+    resetPagination: () => {},
+    hasNextPage: false,
+    hasPreviousPage: false,
+    totalItems: 10,
+    startIndex: 0,
+    endIndex: 0,
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +86,6 @@ export function EmployeeManagement() {
       firstName: formData.firstName,
       email: formData.email,
       role: formData.role,
-      designation: formData.designation,
       joinDate: formData.joinDate,
       reportingManagerId:
         formData.reportingManagerId === "none"
@@ -83,7 +102,7 @@ export function EmployeeManagement() {
       email: "",
       designation: "",
       joinDate: "",
-      reportingManagerId: "none",
+      reportingManagerId: "",
       role: UserRole.EMPLOYEE,
     });
 
@@ -247,11 +266,10 @@ export function EmployeeManagement() {
                 <TableCell>{employee.firstName}</TableCell>
                 <TableCell>{employee.email}</TableCell>
                 <TableCell>{employee.role}</TableCell>
+                <TableCell>{new Date().toLocaleDateString()}</TableCell>
                 <TableCell>
-                  {new Date().toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {getManagerName(employee.reportingManagerId)}
+                  {/* {getManagerName(employee.reportingManagerId)} */}
+                  {employee.reportingManager?.email}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

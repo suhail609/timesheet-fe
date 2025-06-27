@@ -12,6 +12,8 @@ export const GET_ALL_TIMESHEETS = "/timesheet/all";
 export const CREATE_TIMESHEET = "/timesheet/create";
 export const UPDATE_TIMESHEET = "/timesheet/update";
 export const GET_APP_DATA = "/app-data";
+export const GET_USERS = "users/employees";
+export const GET_SUBORDINATES = "users/subordinates";
 
 //MANAGER
 export const GET_SUBORDINATES_TIMESHEET = "/timesheet/subordinate/all";

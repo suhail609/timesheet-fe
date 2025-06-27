@@ -26,7 +26,14 @@ const SignUp = () => {
     }
   };
 
-  return <SignupForm onSignup={handleSubmit} onBackToLogin={() => {}} />;
+  return (
+    <SignupForm
+      onSignup={handleSubmit}
+      onBackToLogin={() => {
+        router.push("/signin");
+      }}
+    />
+  );
 };
 
 export default SignUp;

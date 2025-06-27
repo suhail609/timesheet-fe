@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,12 +17,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useData } from "@/context/data-context";
-import { User, UserRole, UserSignup } from "@/types";
+import { UserRole, UserSignup } from "@/types";
 import { ArrowLeft, UserPlus } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
+
+import { selectAppData } from "@/redux/app-data/appDataSlice";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { z } from "zod";
+
+const SignupSchema = z.object({
+  firstName: z.string(),
+  email: z.string().email("Invalid email address"),
+  role: z.enum(Object.values(UserRole) as [UserRole, ...UserRole[]], {
+    required_error: "Role is required",
+    invalid_type_error: "Invalid role",
+  }),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type SignupFormValues = z.infer<typeof SignupSchema>;
 
 interface SignupFormProps {
   onSignup: (user: UserSignup) => void;
@@ -31,89 +44,35 @@ interface SignupFormProps {
 }
 
 export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
-  const { users, designations, addUser } = useData();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    employeeCode: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "" as UserRole,
-    joinDate: new Date().toISOString().split("T")[0],
-    reportingManagerId: "none",
-    department: "",
-    phoneNumber: "",
-    address: "",
+  const {
+    watch,
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(SignupSchema),
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const managers = users.filter((user) => user.role === UserRole.MANAGER);
-
-  // const manager = get all managers from redux
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    } else if (users.some((user) => user.email === formData.email)) {
-      newErrors.email = "Email already registered";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!acceptedTerms) {
-      newErrors.terms = "You must accept the terms and conditions";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: SignupFormValues) => {
     try {
       const newUser: UserSignup = {
-        email: formData.email,
-        role: formData.role,
-        password: formData.password,
+        email: data.email,
+        role: data.role,
+        password: data.password,
         // reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
       };
 
       onSignup(newUser);
     } catch (error) {
-      setErrors({ submit: "Registration failed. Please try again." });
-    } finally {
-      setIsSubmitting(false);
+      console.error(error);
     }
+    console.log("Submitted data:", data);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: "" });
-    }
-  };
+  const {
+    appData: { managers },
+  } = useSelector(selectAppData);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -135,7 +94,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Personal Information</h3>
@@ -147,36 +106,16 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                   <Input
                     id="firstName"
                     placeholder="Enter your full name"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
+                    {...register("firstName")}
+                    // value={formData.firstName}
+                    // onChange={(e) =>
+                    //   handleInputChange("firstName", e.target.value)
+                    // }
                     className={errors.firstName ? "border-red-500" : ""}
                   />
                   {errors.firstName && (
-                    <p className="text-sm text-red-500">{errors.firstName}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="employeeCode">
-                    Employee Code <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="employeeCode"
-                    placeholder="e.g., EMP001"
-                    value={formData.employeeCode}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "employeeCode",
-                        e.target.value.toUpperCase()
-                      )
-                    }
-                    className={errors.employeeCode ? "border-red-500" : ""}
-                  />
-                  {errors.employeeCode && (
                     <p className="text-sm text-red-500">
-                      {errors.employeeCode}
+                      {errors.firstName.message}
                     </p>
                   )}
                 </div>
@@ -189,37 +128,15 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    {...register("email")}
                     className={errors.email ? "border-red-500" : ""}
                   />
                   {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber">Phone Number</Label>
-                  <Input
-                    id="phoneNumber"
-                    placeholder="Enter your phone number"
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleInputChange("phoneNumber", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  placeholder="Enter your address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  rows={3}
-                />
               </div>
             </div>
 
@@ -235,18 +152,17 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     id="password"
                     type="password"
                     placeholder="Enter password (min. 6 characters)"
-                    value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
+                    {...register("password")}
                     className={errors.password ? "border-red-500" : ""}
                   />
                   {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="confirmPassword">
                     Confirm Password <span className="text-red-500">*</span>
                   </Label>
@@ -265,7 +181,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                       {errors.confirmPassword}
                     </p>
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -276,41 +192,27 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Select
-                    value={formData.role}
-                    onValueChange={(value: UserRole) =>
-                      handleInputChange("role", value)
-                    }
+                    value={watch("role")}
+                    onValueChange={(value: UserRole) => setValue("role", value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {
-                        Object.keys(UserRole).map((role)=>(<SelectItem value={role}>{role}</SelectItem>))
-                      }
+                      {Object.keys(UserRole).map((role) => (
+                        <SelectItem value={role}>{role}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="joinDate">Join Date</Label>
-                  <Input
-                    id="joinDate"
-                    type="date"
-                    value={formData.joinDate}
-                    onChange={(e) =>
-                      handleInputChange("joinDate", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="reportingManager">Reporting Manager</Label>
                   <Select
-                    value={formData.reportingManagerId}
-                    onValueChange={(value) =>
-                      handleInputChange("reportingManagerId", value)
-                    }
+                  // value={}
+                  // onValueChange={(value) =>
+                  //   handleInputChange("reportingManagerId", value)
+                  // }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select reporting manager" />
@@ -319,7 +221,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                       <SelectItem value="none">None</SelectItem>
                       {managers.map((manager) => (
                         <SelectItem key={manager.id} value={manager.id}>
-                          {manager.firstName} ({manager.role})
+                          {manager.firstName} ({manager.email})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -329,7 +231,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
             </div>
 
             {/* Terms and Conditions */}
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <div className="flex items-start space-x-2">
                 <Checkbox
                   id="terms"
@@ -359,13 +261,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
               {errors.terms && (
                 <p className="text-sm text-red-500">{errors.terms}</p>
               )}
-            </div>
-
-            {errors.submit && (
-              <p className="text-sm text-red-500 text-center">
-                {errors.submit}
-              </p>
-            )}
+            </div> */}
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (

@@ -20,12 +20,23 @@ const SignIn = () => {
         router.push("/employee/timesheet");
         return;
       }
+      if (user.role === UserRole.MANAGER) {
+        router.push("/manager");
+        return;
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
-  return <LoginForm onLogin={onLogin} onShowSignup={() => {}} />;
+  return (
+    <LoginForm
+      onLogin={onLogin}
+      onShowSignup={() => {
+        router.push("/signup");
+      }}
+    />
+  );
 };
 
 export default SignIn;

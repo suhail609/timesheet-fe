@@ -98,7 +98,7 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
     alert("Entry rejected successfully!");
   };
 
-  if (pendingEntries.length === 0) {
+  if (pagination.paginatedData.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         No pending timesheet entries for approval.
@@ -124,14 +124,14 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
         <TableBody>
           {pagination.paginatedData.map((entry) => (
             <TableRow key={entry.id}>
-              <TableCell>{getEmployeeName(entry.employeeId)}</TableCell>
-              <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
-              <TableCell>{getProjectName(entry.projectId)}</TableCell>
-              <TableCell>{getActivityName(entry.activityTypeId)}</TableCell>
+              <TableCell>{entry.userId}</TableCell>
+              <TableCell>{new Date().toLocaleDateString()}</TableCell>
+              <TableCell>{entry.activityType}</TableCell>
+              <TableCell>{entry.activityType}</TableCell>
               <TableCell className="max-w-xs truncate">
                 {entry.description}
               </TableCell>
-              <TableCell>{entry.timeWorked}h</TableCell>
+              <TableCell>{entry.timeSpentMinutes}h</TableCell>
               <TableCell>
                 {entry.submittedAt &&
                   new Date(entry.submittedAt).toLocaleDateString()}
