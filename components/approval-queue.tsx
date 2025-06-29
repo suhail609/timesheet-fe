@@ -82,7 +82,7 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
         <TableBody>
           {pagination.paginatedData.map((entry) => (
             <TableRow key={entry.id}>
-              <TableCell>{entry.userId}</TableCell>
+              <TableCell>{entry.user?.email}</TableCell>
               <TableCell>{new Date().toLocaleDateString()}</TableCell>
               <TableCell>{entry.activityType}</TableCell>
               <TableCell>{entry.activityType}</TableCell>

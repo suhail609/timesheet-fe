@@ -134,4 +134,7 @@ export interface TimesheetEntry {
   submittedAt?: string;
   approvedAt?: string;
   approvedBy?: string;
+  user?: {
+    email: string;
+  };
 }
