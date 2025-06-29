@@ -16,7 +16,7 @@ export default function EmployeeLayout({
   const router = useRouter();
   const { getAccessToken } = useAccessToken();
   const accessToken = getAccessToken();
-  const { user } = useSelector(selectAuthSlice);
+  const { user, isLoading } = useSelector(selectAuthSlice);
   const { getProfile } = useAuthActions();
 
   useEffect(() => {
@@ -25,7 +25,15 @@ export default function EmployeeLayout({
       return;
     }
 
-    if (!user || user.role !== UserRole.EMPLOYEE) {
+    // if (!user || user.role !== UserRole.EMPLOYEE) {
+    //   try {
+    //     getProfile();
+    //   } catch (error) {
+    //     router.push("/signin");
+    //   }
+    // }
+
+    if (!user) {
       try {
         getProfile();
       } catch (error) {
@@ -34,5 +42,13 @@ export default function EmployeeLayout({
     }
   }, []);
 
+  useEffect(() => {
+    if (user && user.role !== UserRole.EMPLOYEE) {
+      router.push("/signin");
+      return;
+    }
+  }, [user]);
+
+  if(isLoading) return <>Loading</>
   return <>{children}</>;
 }
