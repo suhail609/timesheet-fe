@@ -14,7 +14,7 @@ import { useData } from "@/context/data-context";
 import { usePagination } from "@/hooks/use-pagination";
 import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
 import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
-import type { UserRole } from "@/types";
+import { TimesheetStatus, UserRole } from "@/types";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -25,65 +25,23 @@ interface ApprovalQueueProps {
 }
 
 export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
-  const {
-    timesheetEntries,
-    projects,
-    activityTypes,
-    users,
-    updateTimesheetEntry,
-  } = useData();
-
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const { getSubordinatesTimesheets } = useTimesheetActions();
+  const { getSubordinatesTimesheets, updateTimesheetEntry } =
+    useTimesheetActions();
   const { timesheets } = useSelector(selectTimesheet);
 
   useEffect(() => {
-    getSubordinatesTimesheets({});
+    if (timesheets.length === 0) getSubordinatesTimesheets({});
   }, []);
 
-  const getPendingEntries = () => {
-    if (userRole === "Reporting Manager") {
-      // Show submitted entries from direct reports
-      const directReports = users.filter(
-        (user) => user.reportingManagerId === managerId
-      );
-      return timesheetEntries.filter(
-        (entry) =>
-          entry.status === "Submitted" &&
-          directReports.some((report) => report.id === entry.employeeId)
-      );
-    } else {
-      // Admin/HR Admin can see all submitted entries
-      return timesheetEntries.filter((entry) => entry.status === "Submitted");
-    }
-  };
-
-  const pendingEntries = getPendingEntries();
   const pagination = usePagination({
-    data: pendingEntries,
+    data: timesheets,
     itemsPerPage,
   });
-  pagination.paginatedData = timesheets;
-
-  const getProjectName = (projectId: string) => {
-    return projects.find((p) => p.id === projectId)?.name || "Unknown Project";
-  };
-
-  const getActivityName = (activityId: string) => {
-    return (
-      activityTypes.find((a) => a.id === activityId)?.name || "Unknown Activity"
-    );
-  };
-
-  const getEmployeeName = (employeeId: string) => {
-    return (
-      users.find((u) => u.id === employeeId)?.fullName || "Unknown Employee"
-    );
-  };
 
   const handleApprove = (entryId: string) => {
     updateTimesheetEntry(entryId, {
-      status: "Approved",
+      status: TimesheetStatus.APPROVED,
       approvedAt: new Date().toISOString(),
       approvedBy: managerId,
     });
@@ -92,7 +50,7 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
 
   const handleReject = (entryId: string) => {
     updateTimesheetEntry(entryId, {
-      status: "Rejected",
+      status: TimesheetStatus.REJECTED,
       approvedBy: managerId,
     });
     alert("Entry rejected successfully!");
@@ -138,22 +96,26 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleApprove(entry.id)}
-                    className="bg-green-50 text-green-700 hover:bg-green-100"
-                  >
-                    <Check className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleReject(entry.id)}
-                    className="bg-red-50 text-red-700 hover:bg-red-100"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+                  {entry.status !== TimesheetStatus.APPROVED && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleApprove(entry.id)}
+                      className="bg-green-50 text-green-700 hover:bg-green-100"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                  )}
+                  {entry.status !== TimesheetStatus.REJECTED && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleReject(entry.id)}
+                      className="bg-red-50 text-red-700 hover:bg-red-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

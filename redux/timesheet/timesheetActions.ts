@@ -71,7 +71,7 @@ export const useTimesheetActions = () => {
     });
 
     //TODO: update store without calling the api again
-    await getAllTimesheets({});
+    await getSubordinatesTimesheets({});
   };
 
   const submitTimesheets = async (
