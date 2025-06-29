@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/table";
 import { useData } from "@/context/data-context";
 import { usePagination } from "@/hooks/use-pagination";
+import {
+  DELETE_TIMESHEET,
+  SUBMIT_TIMESHEETS,
+  UPDATE_TIMESHEET,
+} from "@/network/ApiEndpoints";
 import { ApiRequest } from "@/network/ApiRequest";
 import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
 import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
@@ -43,7 +48,12 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<TimesheetEntry | null>(null);
 
-  const { getAllTimesheets } = useTimesheetActions();
+  const {
+    getAllTimesheets,
+    submitTimesheets,
+    updateTimesheetEntry,
+    deleteTimesheet,
+  } = useTimesheetActions();
   const { timesheets } = useSelector(selectTimesheet);
 
   useEffect(() => {
@@ -60,14 +70,35 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
     itemsPerPage,
   });
 
-  const updateTimesheetEntry = (
+  const updateTimesheetEntry1 = (
     timesheetId: string,
     editingEntry: Partial<TimesheetEntry>
   ) => {
     ApiRequest().request({
       method: "PATCH",
-      url: `UPDATE_TIMESHEET/${timesheetId}`,
-      data: { editingEntry },
+      url: `${UPDATE_TIMESHEET}/${timesheetId}`,
+      data: editingEntry,
+    });
+  };
+
+  const submitTimesheets1 = (
+    timesheetIds: string[]
+    // editingEntry: Partial<TimesheetEntry>
+  ) => {
+    ApiRequest().request({
+      method: "PATCH",
+      url: `${SUBMIT_TIMESHEETS}`,
+      data: { timesheetIds: timesheetIds },
+    });
+  };
+
+  const deleteTimesheet1 = (
+    timesheetId: string
+    // editingEntry: Partial<TimesheetEntry>
+  ) => {
+    ApiRequest().request({
+      method: "DELETE",
+      url: `${DELETE_TIMESHEET}/${timesheetId}`,
     });
   };
 
@@ -111,19 +142,21 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
   };
 
   const handleBulkSubmit = () => {
-    updateMultipleTimesheetEntries(selectedEntries, {
-      status: TimesheetStatus.SUBMITTED,
-      submittedAt: new Date().toISOString(),
-    });
+    // updateMultipleTimesheetEntries(selectedEntries, {
+    //   status: TimesheetStatus.SUBMITTED,
+    //   submittedAt: new Date().toISOString(),
+    // });
+    submitTimesheets(selectedEntries);
     setSelectedEntries([]);
     alert(`${selectedEntries.length} entries submitted successfully!`);
   };
 
   const handleSubmitSingle = (entryId: string) => {
-    updateTimesheetEntry(entryId, {
-      status: TimesheetStatus.SUBMITTED,
-      submittedAt: new Date().toISOString(),
-    });
+    submitTimesheets([entryId]);
+    // updateTimesheetEntry(entryId, {
+    //   status: TimesheetStatus.SUBMITTED,
+    //   submittedAt: new Date().toISOString(),
+    // });
     alert("Entry submitted successfully!");
   };
 
@@ -291,7 +324,11 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteTimesheet(entry.id)}
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                           <Button

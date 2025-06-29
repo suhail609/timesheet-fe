@@ -134,8 +134,7 @@ export function TimesheetEntryModal({
           userId: userId,
           date: formData.date,
           project: formData.project,
-          //@ts-ignore
-          activityType: formData.activity,
+          activityType: formData.activityType,
           description: formData.description,
           timeSpentMinutes: formData.timeSpentMinutes,
           status: TimesheetStatus.APPROVED,
@@ -216,7 +215,7 @@ export function TimesheetEntryModal({
             </Label>
             <Select
               value={formData.activityType}
-              onValueChange={(value) => handleInputChange("activity", value)}
+              onValueChange={(value) => handleInputChange("activityType", value)}
             >
               <SelectTrigger
                 className={errors.activity ? "border-red-500" : ""}
