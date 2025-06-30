@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuthActions } from "../../../redux/auth/authActions";
 import { SignupForm } from "@/components/signup-form";
 import { User, UserSignup } from "@/types";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ const SignUp = () => {
       router.push("/");
     } catch (error) {
       console.error(error);
+      toast.error("Error Signup "+ error)
     }
   };
 

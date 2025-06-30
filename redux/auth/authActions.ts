@@ -11,6 +11,7 @@ import {
 import { AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { authStart, authSuccess, authFailure, authReset } from "./authSlice";
+import { toast } from "sonner";
 
 export const useAuthActions = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ export const useAuthActions = () => {
       if (status) return true;
     } catch (error) {
       console.error("Signin failed:", error);
+      toast.error("Signin failed: "+ error)
     }
   };
 

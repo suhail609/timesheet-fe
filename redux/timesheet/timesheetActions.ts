@@ -24,6 +24,7 @@ import {
 } from "@/network/ApiEndpoints";
 import { AxiosResponse } from "axios";
 import { TimesheetEntry } from "@/types";
+import { toast } from "sonner";
 
 export const useTimesheetActions = () => {
   const dispatch = useDispatch();
@@ -70,6 +71,8 @@ export const useTimesheetActions = () => {
       data: editingEntry,
     });
 
+    toast.success("Timesheet Updated Successfully");
+
     //TODO: update store without calling the api again
     await getSubordinatesTimesheets({});
   };
@@ -95,6 +98,8 @@ export const useTimesheetActions = () => {
       method: "DELETE",
       url: `${DELETE_TIMESHEET}/${timesheetId}`,
     });
+    toast.success("Timesheet Deleted Successfully");
+
     await getAllTimesheets({});
   };
 
@@ -107,6 +112,7 @@ export const useTimesheetActions = () => {
       });
 
       dispatch(addTimesheet(response.data));
+      toast.success("Timesheet Created Successfully");
 
       // dispatch(setMessagesLoading(true));
       // dispatch(addMessage({ content: content, isAI: false }));
@@ -133,6 +139,7 @@ export const useTimesheetActions = () => {
       });
 
       dispatch(updateTimesheetSlice(updatedTimesheet));
+      toast.success("Timesheet Updated Successfully");
 
       // dispatch(setMessagesLoading(true));
       // dispatch(addMessage({ content: content, isAI: false }));
