@@ -34,6 +34,7 @@ const SignupSchema = z.object({
     invalid_type_error: "Invalid role",
   }),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  reportingManagerId: z.string().optional(),
 });
 
 type SignupFormValues = z.infer<typeof SignupSchema>;
@@ -60,7 +61,7 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
         email: data.email,
         role: data.role,
         password: data.password,
-        // reportingManagerId: formData.reportingManagerId === "none" ? undefined : formData.reportingManagerId,
+        reportingManagerId: data.reportingManagerId,
       };
 
       onSignup(newUser);
@@ -200,7 +201,9 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {Object.keys(UserRole).map((role) => (
-                        <SelectItem value={role}>{role}</SelectItem>
+                        <SelectItem key={role} value={role}>
+                          {role}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -209,10 +212,10 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
                 <div className="space-y-2">
                   <Label htmlFor="reportingManager">Reporting Manager</Label>
                   <Select
-                  // value={}
-                  // onValueChange={(value) =>
-                  //   handleInputChange("reportingManagerId", value)
-                  // }
+                    value={watch("reportingManagerId")}
+                    onValueChange={(value) =>
+                      setValue("reportingManagerId", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select reporting manager" />

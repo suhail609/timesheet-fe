@@ -15,6 +15,7 @@ export interface UserSignup {
   email: string;
   password: string;
   role: UserRole;
+  reportingManagerId?: string;
 }
 
 export interface UserSignin {

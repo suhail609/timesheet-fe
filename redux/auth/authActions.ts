@@ -63,7 +63,12 @@ export const useAuthActions = () => {
     }
   };
 
-  const signup = async ({ email, password, role }: UserSignup) => {
+  const signup = async ({
+    email,
+    password,
+    role,
+    reportingManagerId,
+  }: UserSignup) => {
     try {
       dispatch(authStart());
 
@@ -71,7 +76,12 @@ export const useAuthActions = () => {
         await ApiRequest().request({
           method: "POST",
           url: SIGNUP,
-          data: { email: email, password: password, role: role },
+          data: {
+            email: email,
+            password: password,
+            role: role,
+            reportingManagerId: reportingManagerId,
+          },
         });
 
       const { status, data } = response;

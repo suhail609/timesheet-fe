@@ -19,6 +19,7 @@ const SignUp = () => {
         email: user.email,
         password: user.password,
         role: user.role,
+        reportingManagerId: user.reportingManagerId,
       });
       router.push("/");
     } catch (error) {
