@@ -19,16 +19,6 @@ const Employee = () => {
 
   const { signup } = useAuthActions();
 
-  //   const handleSubmit = async (user: User) => {
-  //     try {
-  //       signup({ email: user.email, password: user.role });
-  //       router.push("/chat");
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  // return <Dashboard user={{} as User} onLogout={() => {}} />;
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
@@ -42,16 +32,26 @@ const Employee = () => {
                 Welcome, {"user.fullName"} ({"user.role"})
               </p>
             </div>
-            <Button variant="outline" onClick={() => {}}>
+            {/* <Button variant="outline" onClick={() => {}}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
-            </Button>
+            </Button> */}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-       
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">Quick Navigation</h2>
+          <div className="flex flex-wrap gap-4">
+            <Button onClick={() => router.push("/signin")}>Sign In</Button>
+            <Button onClick={() => router.push("/signup")}>Sign Up</Button>
+            <Button onClick={() => router.push("/employee/timesheet")}>Employee Dashboard</Button>
+            <Button onClick={() => router.push("/manager")} variant="secondary">
+              Manager Dashboard
+            </Button>
+          </div>
+        </div>
       </main>
     </div>
   );

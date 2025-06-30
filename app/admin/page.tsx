@@ -5,6 +5,7 @@ import { MasterData } from "@/components/master-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuthActions } from "@/redux/auth/authActions";
 import { CheckSquare, Clock, LogOut, Settings, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,6 +14,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("approvals");
 
   const router = useRouter();
+  const { signout } = useAuthActions();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,7 +29,13 @@ const Admin = () => {
                 Welcome, {"ADmin"} ({"user.role"})
               </p>
             </div>
-            <Button variant="outline" onClick={() => {}}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                signout();
+                router.push("/");
+              }}
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>

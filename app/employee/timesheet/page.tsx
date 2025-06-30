@@ -16,7 +16,7 @@ const Employee = () => {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("timesheet");
-
+  const { signout } = useAuthActions();
   const { signup } = useAuthActions();
 
   //   const handleSubmit = async (user: User) => {
@@ -42,7 +42,13 @@ const Employee = () => {
                 Welcome, {"user.fullName"} ({"user.role"})
               </p>
             </div>
-            <Button variant="outline" onClick={() => {}}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                signout();
+                router.push("/");
+              }}
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>

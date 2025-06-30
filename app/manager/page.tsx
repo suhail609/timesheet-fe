@@ -17,7 +17,7 @@ const Manager = () => {
 
   const router = useRouter();
 
-  const { signup } = useAuthActions();
+  const { signout } = useAuthActions();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,7 +32,13 @@ const Manager = () => {
                 Welcome, {"user.fullName"} ({"user.role"})
               </p>
             </div>
-            <Button variant="outline" onClick={() => {}}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                signout();
+                router.push("/");
+              }}
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
