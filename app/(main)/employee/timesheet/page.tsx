@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuthActions } from "../../../redux/auth/authActions";
+import { useAuthActions } from "../../../../redux/auth/authActions";
 import { UserRole } from "@/types";
 
 const Employee = () => {
@@ -31,7 +31,7 @@ const Employee = () => {
   // return <Dashboard user={{} as User} onLogout={() => {}} />;
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+      {/* <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -54,7 +54,7 @@ const Employee = () => {
             </Button>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs

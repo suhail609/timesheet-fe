@@ -28,9 +28,9 @@ const Employee = () => {
               <h1 className="text-2xl font-bold text-gray-900">
                 Timesheet Application
               </h1>
-              <p className="text-sm text-gray-600">
-                Welcome, {"user.fullName"} ({"user.role"})
-              </p>
+              {/* <p className="text-sm text-gray-600">
+                Welcome, {null} ({null})
+              </p> */}
             </div>
             {/* <Button variant="outline" onClick={() => {}}>
               <LogOut className="w-4 h-4 mr-2" />

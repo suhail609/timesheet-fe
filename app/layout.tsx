@@ -3,6 +3,8 @@ import "./globals.css";
 import { StoreProvider } from "@/redux/StoreProvider";
 import { DataProvider } from "@/context/data-context";
 import { Toaster } from "sonner";
+import { UserProvider } from "@/context/user-context";
+import { Header } from "./_components/header";
 
 export const metadata: Metadata = {
   title: "time-sheet",
@@ -18,8 +20,10 @@ export default function RootLayout({
     <html lang="en">
       <StoreProvider>
         <DataProvider>
-          <Toaster richColors position="top-right" />
-          <body>{children}</body>
+          <UserProvider>
+            <Toaster richColors position="top-right" />
+            <body>{children}</body>
+          </UserProvider>
         </DataProvider>
       </StoreProvider>
     </html>
