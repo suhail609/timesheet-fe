@@ -12,8 +12,10 @@ import { AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { authStart, authSuccess, authFailure, authReset } from "./authSlice";
 import { toast } from "sonner";
+import { useTimesheetActions } from "../timesheet/timesheetActions";
 
 export const useAuthActions = () => {
+  const { resetTimesheet } = useTimesheetActions();
   const dispatch = useDispatch();
   const { setAccessToken, removeAccessToken } = useAccessToken();
 
@@ -38,7 +40,7 @@ export const useAuthActions = () => {
       if (status) return true;
     } catch (error) {
       console.error("Signin failed:", error);
-      toast.error("Signin failed: "+ error)
+      toast.error("Signin failed: " + error);
     }
   };
 
@@ -106,6 +108,7 @@ export const useAuthActions = () => {
 
   const signout = () => {
     removeAccessToken();
+    resetTimesheet();
     dispatch(authReset());
   };
 

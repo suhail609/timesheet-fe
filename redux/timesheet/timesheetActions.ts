@@ -6,6 +6,7 @@ import {
   setTimesheets,
   addTimesheet,
   updateTimesheet as updateTimesheetSlice,
+  timeSheetReset,
 } from "./timesheetSlice";
 import {
   addMessage,
@@ -187,6 +188,10 @@ export const useTimesheetActions = () => {
     }
   };
 
+  const resetTimesheet = () => {
+    dispatch(timeSheetReset());
+  };
+
   // const selectChat = ({ selectedChatId }: { selectedChatId: string }) => {
   //   dispatch(setSelectedChat(selectedChatId));
   // };
@@ -204,5 +209,6 @@ export const useTimesheetActions = () => {
     updateTimesheetEntry,
     deleteTimesheet,
     submitTimesheets,
+    resetTimesheet,
   };
 };

@@ -31,7 +31,7 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
   const { timesheets } = useSelector(selectTimesheet);
 
   useEffect(() => {
-    getSubordinatesTimesheets({});
+    if (timesheets.length === 0) getSubordinatesTimesheets({});
   }, []);
 
   const pagination = usePagination({
