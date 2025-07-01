@@ -24,7 +24,13 @@ import {
 import { ApiRequest } from "@/network/ApiRequest";
 import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
 import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
-import { TimesheetEntry, TimesheetStatus, UserRole } from "@/types";
+import {
+  Activity,
+  ProjectE,
+  TimesheetEntry,
+  TimesheetStatus,
+  UserRole,
+} from "@/types";
 import { Edit, Plus, Send, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -52,6 +58,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
     getAllTimesheets,
     submitTimesheets,
     updateTimesheetEntry,
+    updateTimesheetEntryEmployee,
     deleteTimesheet,
   } = useTimesheetActions();
   const { timesheets } = useSelector(selectTimesheet);
@@ -63,7 +70,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
     });
   }, []);
 
-  useEffect(() => {}, [timesheets]);
+  // useEffect(() => {}, [timesheets]);
 
   const pagination = usePagination({
     data: timesheets,
@@ -187,22 +194,24 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
     field: string,
     value: string | number
   ) => {
-    updateTimesheetEntry(entryId, { [field]: value });
+    updateTimesheetEntryEmployee(entryId, { [field]: value });
   };
 
   const getProjectOptions = () => {
-    return projects
-      .filter((p) => p.status === "Active")
-      .map((project) => ({
-        value: project.id,
-        label: project.name,
-      }));
+    return (
+      Object.values(ProjectE)
+        // .filter((p) => p.status === "Active")
+        .map((project) => ({
+          value: project,
+          label: project,
+        }))
+    );
   };
 
   const getActivityOptions = () => {
-    return activityTypes.map((activity) => ({
-      value: activity.id,
-      label: activity.name,
+    return Object.values(Activity).map((activity: string) => ({
+      value: activity,
+      label: activity,
     }));
   };
 
@@ -274,7 +283,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                     <InlineEditCell
                       value={entry.project}
                       onSave={(value) =>
-                        handleInlineEdit(entry.id, "projectId", value)
+                        handleInlineEdit(entry.id, "project", value)
                       }
                       type="select"
                       options={getProjectOptions()}
@@ -285,7 +294,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                     <InlineEditCell
                       value={entry.activityType}
                       onSave={(value) =>
-                        handleInlineEdit(entry.id, "activityTypeId", value)
+                        handleInlineEdit(entry.id, "activityType", value)
                       }
                       type="select"
                       options={getActivityOptions()}
@@ -306,7 +315,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
                     <InlineEditCell
                       value={entry.timeSpentMinutes}
                       onSave={(value) =>
-                        handleInlineEdit(entry.id, "timeWorked", value)
+                        handleInlineEdit(entry.id, "timeSpentMinutes", value)
                       }
                       type="number"
                       disabled={!canEdit}

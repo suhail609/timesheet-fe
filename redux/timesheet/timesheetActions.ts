@@ -78,6 +78,22 @@ export const useTimesheetActions = () => {
     await getSubordinatesTimesheets({});
   };
 
+  const updateTimesheetEntryEmployee = async (
+    timesheetId: string,
+    editingEntry: Partial<TimesheetEntry>
+  ) => {
+    await ApiRequest().request({
+      method: "PATCH",
+      url: `${UPDATE_TIMESHEET}/${timesheetId}`,
+      data: editingEntry,
+    });
+
+    toast.success("Timesheet Updated Successfully");
+
+    //TODO: update store without calling the api again
+    await getAllTimesheets({});
+  };
+
   const submitTimesheets = async (
     timesheetIds: string[]
     // editingEntry: Partial<TimesheetEntry>
@@ -210,5 +226,6 @@ export const useTimesheetActions = () => {
     deleteTimesheet,
     submitTimesheets,
     resetTimesheet,
+    updateTimesheetEntryEmployee,
   };
 };
