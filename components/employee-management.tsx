@@ -51,8 +51,8 @@ export function EmployeeManagement() {
   const { employees } = useSelector(selectUsers);
 
   useEffect(() => {
-    if (employees.length == 0) getAppData();
-    if (appData.managers.length === 0) getUserDataForManager();
+     getAppData();
+     getUserDataForManager();
   }, []);
 
   const [itemsPerPage, setItemsPerPage] = useState(10);
