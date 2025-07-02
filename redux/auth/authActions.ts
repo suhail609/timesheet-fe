@@ -8,11 +8,11 @@ import {
   UserSignin,
   UserSignup,
 } from "@/types";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
-import { authStart, authSuccess, authFailure, authReset } from "./authSlice";
 import { toast } from "sonner";
 import { useTimesheetActions } from "../timesheet/timesheetActions";
+import { authReset, authStart, authSuccess } from "./authSlice";
 
 export const useAuthActions = () => {
   const { resetTimesheet } = useTimesheetActions();
@@ -38,9 +38,10 @@ export const useAuthActions = () => {
 
       setAccessToken(data.accessToken);
       if (status) return true;
-    } catch (error) {
-      console.error("Signin failed:", error);
-      toast.error("Signin failed: " + error);
+    } catch (error: unknown) {
+      const err = error as AxiosError;
+      console.error("Signin failed:", err);
+      toast.error("Signin failed: " + err.response?.data?.message);
     }
   };
 
@@ -101,7 +102,9 @@ export const useAuthActions = () => {
 
       if (status) return true;
     } catch (error) {
+      const err = error as AxiosError;
       console.error("Signup failed:", error);
+      toast.error("Signup failed: " + err.response?.data?.message);
     }
   };
 
