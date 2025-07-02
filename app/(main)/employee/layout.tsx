@@ -48,7 +48,7 @@ export default function EmployeeLayout({
       setAuthChecked(true);
       return;
     }
-    router.push("/");
+    if (user && user.role !== UserRole.EMPLOYEE) router.push("/");
   }, [user]);
 
   if (isLoading || !isAuthChecked) return <>Loading...</>;

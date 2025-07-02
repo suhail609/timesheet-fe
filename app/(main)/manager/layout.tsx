@@ -35,16 +35,15 @@ export default function ManagerLayout({
           return;
         }
       }
-
     })();
   }, []);
-  
+
   useEffect(() => {
     if (user && user.role === UserRole.MANAGER) {
       setAuthChecked(true);
       return;
     }
-    router.push("/");
+    if (user && user.role !== UserRole.MANAGER) router.push("/");
   }, [user]);
 
   if (isLoading || !isAuthChecked) return <>Loading...</>;
