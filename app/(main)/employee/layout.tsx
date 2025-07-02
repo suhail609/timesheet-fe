@@ -41,17 +41,16 @@ export default function EmployeeLayout({
         router.push("/signin");
       }
     }
-
-    setAuthChecked(true);
   }, []);
 
   useEffect(() => {
-    if (user && user.role !== UserRole.EMPLOYEE) {
-      router.push("/signin");
+    if (user && user.role === UserRole.EMPLOYEE) {
+      setAuthChecked(true);
       return;
     }
+    router.push("/");
   }, [user]);
 
-  if (isLoading || !isAuthChecked) return <>Loading</>;
+  if (isLoading || !isAuthChecked) return <>Loading...</>;
   return <>{children}</>;
 }

@@ -36,15 +36,15 @@ export default function ManagerLayout({
         }
       }
 
-      setAuthChecked(true);
     })();
   }, []);
-
+  
   useEffect(() => {
-    if (user && user.role !== UserRole.MANAGER) {
-      router.push("/signin");
+    if (user && user.role === UserRole.MANAGER) {
+      setAuthChecked(true);
       return;
     }
+    router.push("/");
   }, [user]);
 
   if (isLoading || !isAuthChecked) return <>Loading...</>;
