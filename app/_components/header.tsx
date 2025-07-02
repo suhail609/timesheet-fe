@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { UserContext } from "@/context/user-context";
 import { useAuthActions } from "@/redux/auth/authActions";
-import { selectAuthSlice } from "@/redux/auth/authSlice";
 import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
-import { useSelector } from "react-redux";
 
 // interface HeaderProps {
 //   user: string;
@@ -23,9 +22,9 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <Link href="/" className="text-2xl font-bold text-gray-900">
               Timesheet Application
-            </h1>
+            </Link>
             {user && (
               <p className="text-sm text-gray-600">
                 Welcome, {user.email} ({user.role})
