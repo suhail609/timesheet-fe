@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,16 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, UserRole, UserSignin } from "@/types";
-import { initialUsers } from "@/data/initial-data";
+import { UserRole, UserSignin } from "@/types";
 import Link from "next/link";
+import type React from "react";
+import { useState } from "react";
 
 interface LoginFormProps {
   onLogin: (user: UserSignin) => void;
-  onShowSignup: () => void;
 }
 
-export function LoginForm({ onLogin, onShowSignup }: LoginFormProps) {
+export function LoginForm({ onLogin }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.EMPLOYEE);

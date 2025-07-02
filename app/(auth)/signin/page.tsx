@@ -32,9 +32,6 @@ const SignIn = () => {
   return (
     <LoginForm
       onLogin={onLogin}
-      onShowSignup={() => {
-        router.push("/signup");
-      }}
     />
   );
 };
