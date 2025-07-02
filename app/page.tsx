@@ -46,8 +46,8 @@ const Employee = () => {
           <div className="flex flex-wrap gap-4">
             <Button onClick={() => router.push("/signin")}>Sign In</Button>
             <Button onClick={() => router.push("/signup")}>Sign Up</Button>
-            <Button onClick={() => router.push("/employee/timesheet")}>Employee Dashboard</Button>
-            <Button onClick={() => router.push("/manager")} variant="secondary">
+            <Button onClick={() => router.push("/employee/timesheet")} variant="outline">Employee Dashboard</Button>
+            <Button onClick={() => router.push("/manager")} variant="outline">
               Manager Dashboard
             </Button>
           </div>

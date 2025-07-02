@@ -24,10 +24,10 @@ export const UserContext = createContext<User | null>(null);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { getProfile } = useAuthActions();
-  const { user } = useSelector(selectAuthSlice);
+  const { user, isAuthenticated } = useSelector(selectAuthSlice);
 
   useEffect(() => {
-    if (!user) getProfile();
+    if (isAuthenticated && !user) getProfile();
   }, []);
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
