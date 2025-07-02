@@ -1,12 +1,12 @@
 "use client";
 
 import { useAccessToken } from "@/hooks/useAccessToken";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useAuthActions } from "@/redux/auth/authActions";
-import { useSelector } from "react-redux";
 import { selectAuthSlice } from "@/redux/auth/authSlice";
 import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function EmployeeLayout({
   children,
@@ -18,6 +18,7 @@ export default function EmployeeLayout({
   const accessToken = getAccessToken();
   const { user, isLoading } = useSelector(selectAuthSlice);
   const { getProfile } = useAuthActions();
+  const [isAuthChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     if (!accessToken) {
@@ -40,6 +41,8 @@ export default function EmployeeLayout({
         router.push("/signin");
       }
     }
+
+    setAuthChecked(true);
   }, []);
 
   useEffect(() => {
@@ -49,6 +52,6 @@ export default function EmployeeLayout({
     }
   }, [user]);
 
-  if(isLoading) return <>Loading</>
+  if (isLoading || !isAuthChecked) return <>Loading</>;
   return <>{children}</>;
 }

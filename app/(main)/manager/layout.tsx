@@ -1,12 +1,12 @@
 "use client";
 
 import { useAccessToken } from "@/hooks/useAccessToken";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useAuthActions } from "@/redux/auth/authActions";
-import { useSelector } from "react-redux";
 import { selectAuthSlice } from "@/redux/auth/authSlice";
 import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function ManagerLayout({
   children,
@@ -18,6 +18,7 @@ export default function ManagerLayout({
   const accessToken = getAccessToken();
   const { user, isLoading } = useSelector(selectAuthSlice);
   const { getProfile } = useAuthActions();
+  const [isAuthChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -34,6 +35,8 @@ export default function ManagerLayout({
           return;
         }
       }
+
+      setAuthChecked(true);
     })();
   }, []);
 
@@ -44,6 +47,6 @@ export default function ManagerLayout({
     }
   }, [user]);
 
-  if (isLoading) return <>hello</>;
+  if (isLoading || !isAuthChecked) return <>Loading...</>;
   return <>{children}</>;
 }
