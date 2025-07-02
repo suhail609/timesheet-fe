@@ -22,6 +22,7 @@ import { ArrowLeft, UserPlus } from "lucide-react";
 
 import { selectAppData } from "@/redux/app-data/appDataSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { z } from "zod";
@@ -284,12 +285,12 @@ export function SignupForm({ onSignup, onBackToLogin }: SignupFormProps) {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
-              <button
-                onClick={onBackToLogin}
+              <Link
+                href="/signin"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Sign in here
-              </button>
+              </Link>
             </p>
           </div>
         </CardContent>

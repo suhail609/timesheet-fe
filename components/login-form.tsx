@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { User, UserRole, UserSignin } from "@/types";
 import { initialUsers } from "@/data/initial-data";
+import Link from "next/link";
 
 interface LoginFormProps {
   onLogin: (user: UserSignin) => void;
@@ -101,12 +102,12 @@ export function LoginForm({ onLogin, onShowSignup }: LoginFormProps) {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <button
+              <Link href="/signup"
                 onClick={onShowSignup}
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Sign up here
-              </button>
+              </Link>
             </p>
           </div>
         </CardContent>
