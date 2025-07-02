@@ -88,7 +88,9 @@ export function LoginForm({ onLogin, onShowSignup }: LoginFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {Object.keys(UserRole).map((role) => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    <SelectItem key={role} value={role}>
+                      {role}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -102,8 +104,8 @@ export function LoginForm({ onLogin, onShowSignup }: LoginFormProps) {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <Link href="/signup"
-                onClick={onShowSignup}
+              <Link
+                href="/signup"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Sign up here
