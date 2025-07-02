@@ -18,14 +18,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <StoreProvider>
-        <DataProvider>
-          <UserProvider>
-            <Toaster richColors position="top-right" />
-            <body>{children}</body>
-          </UserProvider>
-        </DataProvider>
-      </StoreProvider>
+      <body>
+        <StoreProvider>
+          <DataProvider>
+            <UserProvider>
+              <Toaster richColors position="top-right" />
+              {children}
+            </UserProvider>
+          </DataProvider>
+        </StoreProvider>
+      </body>
     </html>
   );
 }
