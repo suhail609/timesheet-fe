@@ -27,10 +27,6 @@ import { z } from "zod";
 const SigninSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string(),
-  role: z.enum(Object.values(UserRole) as [UserRole, ...UserRole[]], {
-    required_error: "Role is required",
-    invalid_type_error: "Invalid role",
-  }),
 });
 
 type SigninFormValues = z.infer<typeof SigninSchema>;
@@ -57,7 +53,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const onSubmit = (data: SigninFormValues) => {
     // e.preventDefault();
 
-    onLogin({ email: data.email, password: data.password, role: data.role });
+    onLogin({ email: data.email, password: data.password });
 
     // if (user) {
     //   onLogin(user)
@@ -107,29 +103,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 <p className="text-sm text-red-500">
                   {errors.password.message}
                 </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select
-                value={watch("role")}
-                onValueChange={(value: UserRole) => setValue("role", value)}
-                // onValueChange={(value: UserRole) => setSelectedRole(value)}
-              >
-                <SelectTrigger className={errors.role ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(UserRole).map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.role && (
-                <p className="text-sm text-red-500">{errors.role.message}</p>
               )}
             </div>
 

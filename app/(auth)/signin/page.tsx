@@ -11,17 +11,26 @@ const SignIn = () => {
 
   const onLogin = async (user: UserSignin) => {
     try {
-      await signin({
+      const result = await signin({
         email: user.email,
         password: user.password,
-        role: user.role,
       });
-      if (user.role === UserRole.EMPLOYEE) {
+
+      if (!result || !result.user) {
+        console.error("Login failed: No user data returned");
+        throw new Error("Login failed");
+      }
+
+      if (result.user.role === UserRole.EMPLOYEE) {
         router.push("/employee/timesheet");
         return;
       }
-      if (user.role === UserRole.MANAGER) {
+      if (result.user.role === UserRole.MANAGER) {
         router.push("/manager");
+        return;
+      }
+      if (result.user.role === UserRole.ADMIN) {
+        router.push("/admin");
         return;
       }
     } catch (error) {
@@ -29,11 +38,7 @@ const SignIn = () => {
     }
   };
 
-  return (
-    <LoginForm
-      onLogin={onLogin}
-    />
-  );
+  return <LoginForm onLogin={onLogin} />;
 };
 
 export default SignIn;

@@ -21,7 +21,6 @@ export interface UserSignup {
 export interface UserSignin {
   email: string;
   password: string;
-  role: UserRole;
 }
 
 export type SignupResponse = {

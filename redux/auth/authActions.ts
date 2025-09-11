@@ -19,14 +19,14 @@ export const useAuthActions = () => {
   const dispatch = useDispatch();
   const { setAccessToken, removeAccessToken } = useAccessToken();
 
-  const signin = async ({ email, password, role }: UserSignin) => {
+  const signin = async ({ email, password }: UserSignin) => {
     try {
       dispatch(authStart());
       const { status, data }: AxiosResponse<SigninResponse> =
         await ApiRequest().request({
           method: "POST",
           url: SIGNIN,
-          data: { email: email, password: password, role: role },
+          data: { email: email, password: password },
         });
 
       dispatch(
@@ -37,7 +37,7 @@ export const useAuthActions = () => {
       );
 
       setAccessToken(data.accessToken);
-      if (status) return true;
+      if (status) return { status: status, user: data.user };
     } catch (error: unknown) {
       const err = error as AxiosError;
       console.error("Signin failed:", err);
