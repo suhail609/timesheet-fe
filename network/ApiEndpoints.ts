@@ -8,6 +8,7 @@ export const RESEND_VERIFICATION_CODE = "/auth/client/resend-verification-code";
 export const FORGOT_PASSWORD_REQUEST = "/auth/client/forgot-password";
 
 // GENERAL DATA
+export const GET_ALL_TIMESHEETS_OF_EMPLOYEE = "/timesheet/employee/all";
 export const GET_ALL_TIMESHEETS = "/timesheet/all";
 export const CREATE_TIMESHEET = "/timesheet/create";
 export const UPDATE_TIMESHEET = "/timesheet/update";

@@ -55,7 +55,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
   const [editingEntry, setEditingEntry] = useState<TimesheetEntry | null>(null);
 
   const {
-    getAllTimesheets,
+    getAllTimesheetsOfEmployee,
     submitTimesheets,
     updateTimesheetEntry,
     updateTimesheetEntryEmployee,
@@ -64,7 +64,7 @@ export function TimesheetGrid({ userId, userRole }: TimesheetGridProps) {
   const { timesheets } = useSelector(selectTimesheet);
 
   useEffect(() => {
-    getAllTimesheets({
+    getAllTimesheetsOfEmployee({
       page: 1,
       limit: 5,
     });

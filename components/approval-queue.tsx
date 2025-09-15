@@ -26,12 +26,18 @@ interface ApprovalQueueProps {
 
 export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const { getSubordinatesTimesheets, updateTimesheetEntry } =
+  const { getSubordinatesTimesheets, updateTimesheetEntry, getAllTimesheets } =
     useTimesheetActions();
   const { timesheets } = useSelector(selectTimesheet);
 
   useEffect(() => {
-    if (timesheets.length === 0) getSubordinatesTimesheets({});
+    if (timesheets.length === 0) {
+      if (userRole === UserRole.ADMIN) {
+        getAllTimesheets({});
+      } else if (userRole === UserRole.MANAGER) {
+        getSubordinatesTimesheets({});
+      }
+    }
   }, []);
 
   const pagination = usePagination({

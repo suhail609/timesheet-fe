@@ -19,6 +19,7 @@ import {
   CREATE_TIMESHEET,
   DELETE_TIMESHEET,
   GET_ALL_TIMESHEETS,
+  GET_ALL_TIMESHEETS_OF_EMPLOYEE,
   GET_SUBORDINATES_TIMESHEET,
   SUBMIT_TIMESHEETS,
   UPDATE_TIMESHEET,
@@ -29,6 +30,38 @@ import { toast } from "sonner";
 
 export const useTimesheetActions = () => {
   const dispatch = useDispatch();
+
+  const getAllTimesheetsOfEmployee = async ({
+    page,
+    limit,
+  }: {
+    page?: number;
+    limit?: number;
+  }) => {
+    try {
+      const response = await ApiRequest()
+        .request({
+          method: "GET",
+          url: GET_ALL_TIMESHEETS_OF_EMPLOYEE,
+          params: { page, limit },
+        })
+        .then((response: AxiosResponse) => {
+          const { data } = response;
+
+          dispatch(setTimesheets(data));
+
+          return data;
+        })
+        .catch((error) => {
+          // errorToastify(error);
+          return error;
+        });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    }
+  };
 
   const getAllTimesheets = async ({
     page,
@@ -91,7 +124,7 @@ export const useTimesheetActions = () => {
     toast.success("Timesheet Updated Successfully");
 
     //TODO: update store without calling the api again
-    await getAllTimesheets({});
+    await getAllTimesheetsOfEmployee({});
   };
 
   const submitTimesheets = async (
@@ -104,7 +137,7 @@ export const useTimesheetActions = () => {
       data: { timesheetIds: timesheetIds },
     });
 
-    await getAllTimesheets({});
+    await getAllTimesheetsOfEmployee({});
   };
 
   const deleteTimesheet = async (
@@ -117,7 +150,7 @@ export const useTimesheetActions = () => {
     });
     toast.success("Timesheet Deleted Successfully");
 
-    await getAllTimesheets({});
+    await getAllTimesheetsOfEmployee({});
   };
 
   const createNewTimesheetEntry = async (newTimesheet: TimesheetEntry) => {
@@ -219,6 +252,7 @@ export const useTimesheetActions = () => {
 
   return {
     getAllTimesheets,
+    getAllTimesheetsOfEmployee,
     createNewTimesheetEntry,
     updateTimesheet,
     getSubordinatesTimesheets,
