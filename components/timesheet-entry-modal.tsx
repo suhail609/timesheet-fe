@@ -113,7 +113,7 @@ export function TimesheetEntryModal({
       const timeValue = formData.timeSpentMinutes;
       if (isNaN(timeValue) || timeValue <= 0) {
         newErrors.timeSpentMinutes = "Please enter a valid time value";
-      } else if (timeValue > 24) {
+      } else if (timeValue > 1440) {
         newErrors.timeSpentMinutes = "Time worked cannot exceed 24 hours";
       }
     }
@@ -174,7 +174,7 @@ export function TimesheetEntryModal({
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData({ ...formData, [field]: value });
     // Clear error when user starts typing
     if (errors[field]) {
@@ -299,27 +299,35 @@ export function TimesheetEntryModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="timeSpentMinutes">
-              Time Worked (hours) <span className="text-red-500">*</span>
+            <Label htmlFor="timeSpent">
+              Time Worked (HH:MM) <span className="text-red-500">*</span>
             </Label>
+
             <Input
-              id="timeSpentMinutes"
-              type="number"
-              step="0.5"
-              min="0"
-              max="24"
-              placeholder="8.0"
-              value={formData.timeSpentMinutes}
-              onChange={(e) =>
-                handleInputChange("timeSpentMinutes", e.target.value)
-              }
+              id="timeSpent"
+              type="text"
+              placeholder="e.g. 2:30"
+              value={`${Math.floor(formData.timeSpentMinutes / 60)}:${String(
+                formData.timeSpentMinutes % 60
+              ).padStart(2, "0")}`} // display "H:MM"
+              onChange={(e) => {
+                const value = e.target.value;
+                const [hoursStr, minutesStr] = value.split(":");
+
+                const hours = parseInt(hoursStr || "0", 10);
+                const minutes = parseInt(minutesStr || "0", 10);
+
+                if (!isNaN(hours) && !isNaN(minutes)) {
+                  handleInputChange("timeSpentMinutes", hours * 60 + minutes);
+                }
+              }}
               className={errors.timeSpentMinutes ? "border-red-500" : ""}
             />
+
             {errors.timeSpentMinutes && (
               <p className="text-sm text-red-500">{errors.timeSpentMinutes}</p>
             )}
           </div>
-
           {errors.submit && (
             <p className="text-sm text-red-500">{errors.submit}</p>
           )}
