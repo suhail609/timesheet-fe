@@ -108,6 +108,7 @@ export enum ProjectE {
   PROJECT_A = "PROJECT_A",
   PROJECT_B = "PROJECT_B",
   PROJECT_C = "PROJECT_C",
+  OTHER = "OTHER",
 }
 
 export enum Activity {
@@ -137,4 +138,5 @@ export interface TimesheetEntry {
   user?: {
     email: string;
   };
+  newProjectName?: string;
 }

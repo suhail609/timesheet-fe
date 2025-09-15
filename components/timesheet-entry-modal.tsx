@@ -36,6 +36,15 @@ interface TimesheetEntryModalProps {
   editingEntry?: TimesheetEntryType | null;
 }
 
+type InitialFormData = {
+  date: string;
+  project: ProjectE;
+  activityType: Activity;
+  description: string;
+  timeSpentMinutes: number;
+  newProjectName?: string;
+};
+
 export function TimesheetEntryModal({
   userId,
   isOpen,
@@ -44,12 +53,13 @@ export function TimesheetEntryModal({
 }: TimesheetEntryModalProps) {
   const { createNewTimesheetEntry, updateTimesheet } = useTimesheetActions();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InitialFormData>({
     date: new Date().toISOString().split("T")[0],
     project: ProjectE.PROJECT_A,
     activityType: Activity.DEVELOPMENT,
     description: "",
     timeSpentMinutes: 0,
+    newProjectName: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,6 +74,7 @@ export function TimesheetEntryModal({
         activityType: editingEntry.activityType,
         description: editingEntry.description,
         timeSpentMinutes: editingEntry.timeSpentMinutes,
+        newProjectName: editingEntry.newProjectName,
       });
     } else {
       setFormData({
@@ -105,6 +116,10 @@ export function TimesheetEntryModal({
       } else if (timeValue > 24) {
         newErrors.timeSpentMinutes = "Time worked cannot exceed 24 hours";
       }
+    }
+
+    if (formData.project === ProjectE.OTHER && !formData.newProjectName?.trim()) {
+      newErrors.newProjectName = "New project name is required";
     }
 
     setErrors(newErrors);
@@ -209,13 +224,36 @@ export function TimesheetEntryModal({
             )}
           </div>
 
+          {formData.project === ProjectE.OTHER && (
+            <div className="space-y-2">
+              <Label htmlFor="newProjectName">
+                Project Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="newProjectName"
+                type="text"
+                placeholder="Please enter new project name"
+                value={formData.newProjectName}
+                onChange={(e) =>
+                  handleInputChange("newProjectName", e.target.value)
+                }
+                className={errors.newProjectName ? "border-red-500" : ""}
+              />
+              {errors.newProjectName && (
+                <p className="text-sm text-red-500">{errors.newProjectName}</p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="activity">
               Activity Type <span className="text-red-500">*</span>
             </Label>
             <Select
               value={formData.activityType}
-              onValueChange={(value) => handleInputChange("activityType", value)}
+              onValueChange={(value) =>
+                handleInputChange("activityType", value)
+              }
             >
               <SelectTrigger
                 className={errors.activity ? "border-red-500" : ""}
