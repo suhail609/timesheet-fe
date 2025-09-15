@@ -118,8 +118,16 @@ export function TimesheetEntryModal({
       }
     }
 
-    if (formData.project === ProjectE.OTHER && !formData.newProjectName?.trim()) {
+    if (
+      formData.project === ProjectE.OTHER &&
+      !formData.newProjectName?.trim()
+    ) {
+      if (Object.keys(ProjectE).includes(formData.newProjectName || "")) {
+        newErrors.newProjectName = "Project name must be unique";
+      }
       newErrors.newProjectName = "New project name is required";
+    } else if (Object.keys(ProjectE).includes(formData.newProjectName || "")) {
+      newErrors.newProjectName = "Project name must be unique";
     }
 
     setErrors(newErrors);
