@@ -11,6 +11,7 @@ import { User, UserRole } from "@/types";
 import { CheckSquare, LogOut, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ExportToExcelButton } from "./_components/export-to-excel-button";
 
 const Manager = () => {
   const [activeTab, setActiveTab] = useState("approvals");
@@ -65,7 +66,10 @@ const Manager = () => {
           <TabsContent value="approvals">
             <Card>
               <CardHeader>
-                <CardTitle>Timesheet Approvals</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Timesheet Approvals</CardTitle>
+                  <ExportToExcelButton />
+                </div>
               </CardHeader>
               <CardContent>
                 <ApprovalQueue

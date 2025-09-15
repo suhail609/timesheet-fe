@@ -51,7 +51,6 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
       approvedAt: new Date().toISOString(),
       approvedBy: managerId,
     });
-    alert("Entry approved successfully!");
   };
 
   const handleReject = (entryId: string) => {
@@ -59,7 +58,6 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
       status: TimesheetStatus.REJECTED,
       approvedBy: managerId,
     });
-    alert("Entry rejected successfully!");
   };
 
   if (pagination.paginatedData.length === 0) {
