@@ -1,20 +1,3 @@
-import { useDispatch } from "react-redux";
-import {
-  // setChats,
-  // setSelectedChat,
-  // clearChatSelection,
-  setTimesheets,
-  addTimesheet,
-  updateTimesheet as updateTimesheetSlice,
-  timeSheetReset,
-} from "./timesheetSlice";
-import {
-  addMessage,
-  setMessages,
-  clearMessages,
-  setMessagesLoading,
-} from "./chatMessageSlice";
-import { ApiRequest } from "@/network/ApiRequest";
 import {
   CREATE_TIMESHEET,
   DELETE_TIMESHEET,
@@ -24,9 +7,24 @@ import {
   SUBMIT_TIMESHEETS,
   UPDATE_TIMESHEET,
 } from "@/network/ApiEndpoints";
+import { ApiRequest } from "@/network/ApiRequest";
+import { ActivityType, ProjectE, TimesheetEntry } from "@/types";
 import { AxiosResponse } from "axios";
-import { TimesheetEntry } from "@/types";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { removeEmptyFilters } from "../../utils/utils";
+import {
+  setMessagesLoading
+} from "./chatMessageSlice";
+import {
+  addTimesheet,
+  // setChats,
+  // setSelectedChat,
+  // clearChatSelection,
+  setTimesheets,
+  timeSheetReset,
+  updateTimesheet as updateTimesheetSlice,
+} from "./timesheetSlice";
 
 export const useTimesheetActions = () => {
   const dispatch = useDispatch();
@@ -66,16 +64,28 @@ export const useTimesheetActions = () => {
   const getAllTimesheets = async ({
     page,
     limit,
+    filters,
   }: {
     page?: number;
     limit?: number;
+    filters?: {
+      fromDate?: string;
+      toDate?: string;
+      search?: string;
+      project?: ProjectE | "";
+      activityType?: ActivityType | "";
+    };
   }) => {
     try {
       const response = await ApiRequest()
         .request({
           method: "GET",
           url: GET_ALL_TIMESHEETS,
-          params: { page, limit },
+          params: {
+            page,
+            limit,
+            ...removeEmptyFilters(filters),
+          },
         })
         .then((response: AxiosResponse) => {
           const { data } = response;
@@ -208,16 +218,28 @@ export const useTimesheetActions = () => {
   const getSubordinatesTimesheets = async ({
     page,
     limit,
+    filters,
   }: {
     page?: number;
     limit?: number;
+    filters?: {
+      fromDate?: string;
+      toDate?: string;
+      search?: string;
+      project?: ProjectE | "";
+      activityType?: ActivityType | "";
+    };
   }) => {
     try {
       const response = await ApiRequest()
         .request({
           method: "GET",
           url: GET_SUBORDINATES_TIMESHEET,
-          params: { page, limit },
+          params: {
+            page,
+            limit,
+            ...removeEmptyFilters(filters),
+          },
         })
         .then((response: AxiosResponse) => {
           const { data } = response;

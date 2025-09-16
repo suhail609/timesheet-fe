@@ -2,22 +2,7 @@
 
 import { PaginationControls } from "@/components/pagination-controls";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useData } from "@/context/data-context";
-import { usePagination } from "@/hooks/use-pagination";
-import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
-import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
-import { ProjectE, TimesheetEntry, TimesheetStatus, UserRole } from "@/types";
-import { Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,16 +10,51 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { TimesheetTable } from "./timesheet-table";
+import { usePagination } from "@/hooks/use-pagination";
+import { useTimesheetActions } from "@/redux/timesheet/timesheetActions";
+import { selectTimesheet } from "@/redux/timesheet/timesheetSlice";
+import {
+  ActivityType,
+  ProjectE,
+  TimesheetStatus,
+  UserRole
+} from "@/types";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { ExportTimesheetToExcelButton } from "./export-timesheet-to-excel-button";
+import { TimesheetTable } from "./timesheet-table";
 
 interface ApprovalQueueProps {
   managerId: string;
   userRole: UserRole;
 }
 
-const FilterBar = () => {
+interface FilterBarProps {
+  timeSheetFilters: {
+    search: string;
+    project: ProjectE | "";
+    fromDate: string;
+    toDate: string;
+    activityType: ActivityType | "";
+  };
+  setTimesheetFilters: React.Dispatch<
+    React.SetStateAction<{
+      search: string;
+      project: ProjectE | "";
+      fromDate: string;
+      toDate: string;
+      activityType: ActivityType | "";
+    }>
+  >;
+  resetFilters: () => void;
+}
+
+//TODO: debounce search input
+const FilterBar = ({
+  timeSheetFilters,
+  setTimesheetFilters,
+  resetFilters,
+}: FilterBarProps) => {
   return (
     <>
       <div className="flex justify-between">
@@ -42,19 +62,25 @@ const FilterBar = () => {
           <div>
             <Input
               type="text"
-              placeholder="Search employee..."
-              // value={filters.employee}
-              onChange={
-                (e) => {}
-                // setFilters((f) => ({ ...f, employee: e.target.value }))
-              }
+              placeholder="Search..."
+              value={timeSheetFilters.search}
+              onChange={(e) => {
+                setTimesheetFilters((f) => ({ ...f, search: e.target.value }));
+              }}
               className="border rounded px-2 py-1"
             />
           </div>
           <div>
             <Select
-            // value={formData.project}
-            // onValueChange={(value) => handleInputChange("project", value)}
+              value={timeSheetFilters.project}
+              onValueChange={(value) => {
+                if (value in ProjectE) {
+                  setTimesheetFilters((f) => ({
+                    ...f,
+                    project: value as ProjectE,
+                  }));
+                }
+              }}
             >
               <SelectTrigger
               // className={"errors.project" ? "border-red-500" : ""}
@@ -73,9 +99,14 @@ const FilterBar = () => {
           <div>
             <Input
               type="date"
-              // value={filters.dateFrom}
+              value={timeSheetFilters.fromDate}
               onChange={
-                (e) => {}
+                (e) => {
+                  setTimesheetFilters((f) => ({
+                    ...f,
+                    fromDate: e.target.value,
+                  }));
+                }
                 // setFilters((f) => ({ ...f, dateFrom: e.target.value }))
               }
               className="border rounded px-2 py-1"
@@ -84,33 +115,25 @@ const FilterBar = () => {
           <div>
             <Input
               type="date"
-              // value={filters.dateTo}
+              value={timeSheetFilters.toDate}
               onChange={
-                (e) => {}
+                (e) => {
+                  setTimesheetFilters((f) => ({
+                    ...f,
+                    toDate: e.target.value,
+                  }));
+                }
                 // setFilters((f) => ({ ...f, dateTo: e.target.value }))
               }
               className="border rounded px-2 py-1"
             />
           </div>
 
-          <Button
-            variant="outline"
-            onClick={
-              () => {}
-              // setFilters({
-              //   employee: "",
-              //   project: "",
-              //   activityType: "",
-              //   status: "",
-              //   dateFrom: "",
-              //   dateTo: "",
-              // })
-            }
-          >
+          <Button variant="outline" onClick={resetFilters}>
             Reset Filters
           </Button>
         </div>
-        <ExportTimesheetToExcelButton />
+        <ExportTimesheetToExcelButton filters={timeSheetFilters} />
       </div>
     </>
   );
@@ -118,6 +141,31 @@ const FilterBar = () => {
 
 export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [timesheetFilters, setTimesheetFilters] = useState<{
+    search: string;
+    project: ProjectE | "";
+    fromDate: string;
+    toDate: string;
+    activityType: ActivityType | "";
+  }>({
+    search: "",
+    project: "",
+    fromDate: "",
+    toDate: "",
+    activityType: "",
+  });
+
+  const resetFilters = () => {
+    setTimesheetFilters({
+      search: "",
+      project: "",
+      fromDate: "",
+      toDate: "",
+      activityType: "",
+    });
+  };
+
   const { getSubordinatesTimesheets, updateTimesheetEntry, getAllTimesheets } =
     useTimesheetActions();
   const { timesheets } = useSelector(selectTimesheet);
@@ -131,6 +179,24 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (userRole === UserRole.ADMIN) {
+      getAllTimesheets({
+        filters: timesheetFilters,
+      });
+    } else if (userRole === UserRole.MANAGER) {
+      getSubordinatesTimesheets({
+        filters: timesheetFilters,
+      });
+    }
+  }, [
+    timesheetFilters.fromDate,
+    timesheetFilters.toDate,
+    timesheetFilters.search,
+    timesheetFilters.project,
+    timesheetFilters.activityType,
+  ]);
 
   const pagination = usePagination({
     data: timesheets,
@@ -154,15 +220,26 @@ export function ApprovalQueue({ managerId, userRole }: ApprovalQueueProps) {
 
   if (pagination.paginatedData.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        No pending timesheet entries for approval.
-      </div>
+      <>
+        <FilterBar
+          timeSheetFilters={timesheetFilters}
+          setTimesheetFilters={setTimesheetFilters}
+          resetFilters={resetFilters}
+        />
+        <div className="text-center py-8 text-gray-500">
+          No pending timesheet entries for approval.
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      <FilterBar />
+      <FilterBar
+        timeSheetFilters={timesheetFilters}
+        setTimesheetFilters={setTimesheetFilters}
+        resetFilters={resetFilters}
+      />
       <TimesheetTable
         data={pagination.paginatedData}
         onApprove={handleApprove}

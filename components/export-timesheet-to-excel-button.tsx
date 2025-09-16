@@ -4,29 +4,28 @@ import { ApiRequest } from "@/network/ApiRequest";
 import { saveAs } from "file-saver";
 import { Download } from "lucide-react";
 import * as XLSX from "xlsx";
+import { removeEmptyFilters } from "../utils/utils";
 
 type ExportTimesheetToExcelButtonProps = {
-  startDate?: string;
-  endDate?: string;
-  userId?: number;
-  search?: string;
+  filters?: {
+    startDate?: string;
+    endDate?: string;
+    search?: string;
+  };
   label?: string;
 };
 
 export const ExportTimesheetToExcelButton = ({
-  startDate,
-  endDate,
-  userId,
-  search,
-  // label = "Export",
+  filters,
 }: ExportTimesheetToExcelButtonProps) => {
   const exportToExcel = async () => {
     const { data, status } = await ApiRequest().request({
       method: "GET",
       url: GET_SUBORDINATES_TIMESHEET,
+      params: {
+        ...removeEmptyFilters(filters),
+      },
     });
-
-    console.log("Export data:", data, status);
 
     const worksheet = XLSX.utils.json_to_sheet(data);
 
@@ -51,7 +50,7 @@ export const ExportTimesheetToExcelButton = ({
       .replace(", ", "_");
 
     const bData = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(bData, `timesheet-${timestamp}.xlsx`);
+    saveAs(bData, `subordinates-timesheet-${timestamp}.xlsx`);
   };
 
   return (
