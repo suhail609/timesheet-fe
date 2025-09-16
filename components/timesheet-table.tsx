@@ -41,7 +41,7 @@ export const TimesheetTable = ({
           {data.map((entry) => (
             <TableRow key={entry.id}>
               <TableCell>{entry.user?.email}</TableCell>
-              <TableCell>{new Date().toLocaleDateString()}</TableCell>
+              <TableCell>{entry.date}</TableCell>
               <TableCell>{entry.activityType}</TableCell>
               <TableCell>{entry.activityType}</TableCell>
               <TableCell className="max-w-xs truncate">
