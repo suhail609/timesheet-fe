@@ -5,7 +5,21 @@ import { saveAs } from "file-saver";
 import { Download } from "lucide-react";
 import * as XLSX from "xlsx";
 
-export const ExportToExcelButton = () => {
+type ExportTimesheetToExcelButtonProps = {
+  startDate?: string;
+  endDate?: string;
+  userId?: number;
+  search?: string;
+  label?: string;
+};
+
+export const ExportTimesheetToExcelButton = ({
+  startDate,
+  endDate,
+  userId,
+  search,
+  // label = "Export",
+}: ExportTimesheetToExcelButtonProps) => {
   const exportToExcel = async () => {
     const { data, status } = await ApiRequest().request({
       method: "GET",
@@ -41,7 +55,7 @@ export const ExportToExcelButton = () => {
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={exportToExcel}>
+    <Button variant="ghost" size="default" onClick={exportToExcel}>
       Export
       <Download className="w-4 h-4" />
     </Button>
